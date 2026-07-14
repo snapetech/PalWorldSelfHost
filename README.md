@@ -18,6 +18,15 @@ operations and public read-only status pages.
 - Public player count, uptime, maintenance schedule, and live-coordinate map
 - No public exposure of player IPs, platform identifiers, REST credentials, or
   administrative endpoints
+- Shared mutation lock, persisted maintenance phases, and append-only audit log
+- Player-aware update deferral with in-game warnings and a maximum wait
+- Tiered verified backups, manifests, restore plans, automatic rollback, and drills
+- Typed settings plans, moderation, scheduled jobs, and activity history
+- Webhook/Discord/ntfy/Gotify alerts and an optional allowlisted Matrix bot
+- Redacted diagnostics, preflight, migration, safe uninstall, CI, and releases
+
+This toolkit intentionally operates exactly one Palworld world. It does not include
+multi-instance orchestration, auto-pause, or unattended Steam build downgrades.
 
 The example configuration uses a 50% global XP rate and no death drops. Change
 those values for your own community. Palworld exposes one shared `ExpRate`; it
@@ -64,6 +73,7 @@ Check the deployment with:
 systemctl status palworld.service
 systemctl list-timers 'palworld-*'
 journalctl -u palworld.service -f
+palworldctl status
 ```
 
 ## Configuration
@@ -85,6 +95,8 @@ Important variables:
 | `PALWORLD_PUBLIC_DIR` | Directory where public static assets are installed |
 | `PALWORLD_EXPECTED_HOSTNAME` | Optional deployment-host safety check |
 | `PALWORLD_ALERT_COMMAND` | Optional executable receiving a health-error string |
+| `PALWORLD_MODERATION_ENABLED` | Explicit gate for kick/ban controls |
+| `PALWORLD_MATRIX_*` | Optional allowlisted Matrix administration bot |
 
 ## Public status page
 
@@ -122,9 +134,35 @@ sudo /usr/local/lib/palworld/verify-backup.sh \
   /var/backups/palworld/palworld-YYYYMMDDTHHMMSSZ.tar.zst
 ```
 
-To restore, stop `palworld.service`, verify the selected archive, extract it
-into `PALWORLD_INSTALL_DIR`, restore ownership to `palworld:palworld`, and start
-the service. Preserve the current world separately before any restore.
+Plan a restore first. Execution refuses online players, requires an exact phrase,
+makes a protected backup, stages and validates the archive, verifies the restored
+world GUID, and automatically restores the prior world tree on failure:
+
+```bash
+sudo -E palworldctl restore /var/backups/palworld/palworld-daily-....tar.zst
+sudo -E palworldctl restore /var/backups/palworld/palworld-daily-....tar.zst \
+  --execute --confirm 'RESTORE WORLD'
+```
+
+## Operations and upgrades
+
+`palworldctl` covers status, players, saves, announcements, backups, graceful
+restarts, update checks, settings, restores, diagnostics, preflight, and audit reads.
+After pulling a toolkit update, `sudo ./scripts/migrate.sh` preserves the environment
+and reinstalls code and units without updating the game. To remove the toolkit while
+preserving worlds, backups, state, configuration and public assets, run:
+
+```bash
+sudo ./scripts/uninstall.sh --confirm-remove-services
+```
+
+Maintainers can build a portable source release through GitHub tags or a Debian
+package with `./packaging/build-deb.sh VERSION`. The package intentionally stages
+the toolkit without silently creating a world; copy and edit the environment, then
+run its installed `scripts/install.sh` explicitly.
+
+Keep the operations console behind private ingress. Mutations require the independent
+operator token; moderation also requires its explicit feature gate and ban confirmation.
 
 ## Security model
 

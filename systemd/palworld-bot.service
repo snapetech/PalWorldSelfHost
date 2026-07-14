@@ -1,0 +1,14 @@
+[Unit]
+Description=Optional Palworld Matrix administration bot
+After=network-online.target palworld.service
+[Service]
+User=palworld
+Group=palworld
+EnvironmentFile=/etc/palworld-server.env
+ExecStart=/usr/local/lib/palworld/admin-bot.py
+Restart=on-failure
+RestartSec=10
+NoNewPrivileges=true
+PrivateTmp=true
+[Install]
+WantedBy=multi-user.target

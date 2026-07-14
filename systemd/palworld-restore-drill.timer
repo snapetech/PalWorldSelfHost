@@ -1,0 +1,11 @@
+[Unit]
+Description=Run a weekly isolated Palworld restore drill
+
+[Timer]
+OnCalendar=Sun *-*-* 07:00:00
+RandomizedDelaySec=30min
+Persistent=true
+Unit=palworld-restore-drill.service
+
+[Install]
+WantedBy=timers.target

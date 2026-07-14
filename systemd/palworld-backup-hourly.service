@@ -1,0 +1,8 @@
+[Unit]
+Description=Palworld hourly backup
+[Service]
+Type=oneshot
+User=palworld
+Group=palworld
+EnvironmentFile=/etc/palworld-server.env
+ExecStart=/usr/local/lib/palworld/backup.sh hourly

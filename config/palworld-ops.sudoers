@@ -1,1 +1,1 @@
-palworld ALL=(root) NOPASSWD: /usr/bin/systemctl restart palworld.service, /usr/local/lib/palworld/backup.sh
+palworld ALL=(root) NOPASSWD: /usr/local/lib/palworld/graceful-restart.sh, /usr/local/lib/palworld/backup.sh

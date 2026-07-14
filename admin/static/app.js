@@ -1,52 +1,18 @@
-const $ = (selector) => document.querySelector(selector);
-const fmt = (number) => new Intl.NumberFormat().format(number || 0);
-
-function age(seconds) {
-  if (seconds == null) return "unknown";
-  if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
-  return `${(seconds / 3600).toFixed(1)} hours ago`;
-}
-
-async function refresh() {
-  try {
-    const response = await fetch("/api/status", {cache: "no-store"});
-    const data = await response.json();
-    const metrics = data.metrics || {};
-    const settings = data.settings || {};
-    $("#seal").textContent = data.service === "active" ? "WORLD ONLINE" : "WORLD OFFLINE";
-    $("#seal").style.background = data.service === "active" ? "var(--amber)" : "var(--fault)";
-    $("#players").textContent = fmt(metrics.currentplayernum);
-    $("#fps").textContent = metrics.serverfps ?? "—";
-    $("#frame").textContent = metrics.serverframetime ? `${metrics.serverframetime.toFixed(1)} ms` : "—";
-    $("#day").textContent = metrics.days ?? "—";
-    $("#uptime").textContent = metrics.uptime ? `${(metrics.uptime / 3600).toFixed(1)} h` : "—";
-    $("#xp").textContent = settings.ExpRate ? `${settings.ExpRate * 100}%` : "50%";
-    $("#death").textContent = settings.DeathPenalty ?? "None";
-    $("#pulseText").textContent = `${metrics.serverfps ?? 0} Hz world pulse · ${metrics.currentplayernum ?? 0}/${metrics.maxplayernum ?? 32} inhabitants`;
-    if (data.backup) {
-      $("#backup").textContent = data.backup.name;
-      $("#backupMeta").textContent = `${age(data.backup.age_seconds)} · ${(data.backup.bytes / 1048576).toFixed(1)} MiB`;
-    }
-    $("#disk").style.width = `${100 - (data.disk.free / data.disk.total * 100)}%`;
-    $("#maintenance").textContent = `Next maintenance · ${data.next_maintenance}`;
-    $("#updated").textContent = `Updated ${new Date().toLocaleTimeString()}`;
-  } catch (error) {
-    $("#seal").textContent = "CONTROL PLANE LOST";
-    $("#seal").style.background = "var(--fault)";
-  }
-}
-
-document.querySelectorAll("button").forEach((button) => {
-  button.onclick = async () => {
-    const response = await fetch(`/api/action/${button.dataset.action}`, {
-      method: "POST",
-      headers: {"X-Palworld-Ops-Token": $("#token").value},
-    });
-    const data = await response.json();
-    $("#result").textContent = data.output || data.error || "Action completed";
-    refresh();
-  };
-});
-
-refresh();
-setInterval(refresh, 10000);
+const $=s=>document.querySelector(s), token=()=>$("#token").value;
+const headers=()=>({"X-Palworld-Ops-Token":token(),"Content-Type":"application/json"});
+const api=async(path,options={})=>{const r=await fetch(path,{...options,headers:{...headers(),...(options.headers||{})},cache:"no-store"});const d=await r.json();if(!r.ok)throw Error(d.error||d.output||r.statusText);return d};
+const duration=s=>s>86400?`${Math.floor(s/86400)}d ${Math.floor(s%86400/3600)}h`:`${(s/3600).toFixed(1)}h`;
+const say=t=>$("#result").textContent=t;
+async function refresh(){try{const d=await api("/api/status"),m=d.metrics||{},i=d.info||{};$("#seal").textContent=d.service==="active"?"WORLD ONLINE":"WORLD OFFLINE";$("#players").textContent=m.currentplayernum??0;$("#capacity").textContent=m.maxplayernum??32;$("#uptime").textContent=duration(m.uptime||0);$("#day").textContent=m.days??"—";$("#build").textContent=i.version||"—";if(d.backup){$("#backup").textContent=d.backup.name;$("#backupMeta").textContent=`${(d.backup.bytes/1048576).toFixed(1)} MiB · ${duration(d.backup.age_seconds)} ago`}$("#disk").style.width=`${100-d.disk.free/d.disk.total*100}%`;$("#maintenance").textContent=`Next maintenance · ${d.next_maintenance||"—"}`;$("#health").textContent=d.health?.ok===false?`Health: ${d.health.issues.join(", ")}`:"Health: nominal";renderRoster(d.players?.players||[]);renderJobs(d.jobs||[]);$("#updated").textContent=new Date().toLocaleTimeString()}catch(e){$("#seal").textContent="CONTROL PLANE LOST"}}
+function renderRoster(players){$("#roster").innerHTML=players.map(p=>`<div><b>${esc(p.name||"Unknown")}</b><span>Lv ${p.level??"—"} · ${Math.round(p.ping||0)}ms</span><button data-mod="kick" data-id="${esc(p.userId||p.userid||"")}">Kick</button><button class="danger" data-mod="ban" data-id="${esc(p.userId||p.userid||"")}">Ban</button></div>`).join("")||'<p class="muted">No players online.</p>'}
+function renderJobs(jobs){$("#jobs").innerHTML=jobs.filter(j=>j.enabled).map(j=>`<p>${esc(j.type)} · ${new Date(j.due_at*1000).toLocaleString()} <button data-cancel="${j.id}">Cancel</button></p>`).join("")||'<p class="muted">No pending jobs.</p>'}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+async function unlock(){localStorage.setItem("palworld-token",token());await Promise.all([refresh(),loadSchema(),loadAudit()]);say("Controls unlocked")}
+async function loadSchema(){const data=await api("/api/settings/schema"),schema=data.settings||{};$("#settings").innerHTML=Object.entries(schema).filter(([,v])=>v.writable&&["boolean","integer","number","string"].includes(v.type)).map(([k,v])=>`<label>${esc(k)}<input data-setting="${esc(k)}" data-type="${v.type}" value="${esc(data.overrides?.[k]??v.default)}"></label>`).join("")}
+async function settings(action){const updates={};document.querySelectorAll("[data-setting]").forEach(x=>{let v=x.value;if(x.dataset.type==="boolean")v=v.toLowerCase()==="true";else if(x.dataset.type==="integer")v=parseInt(v);else if(x.dataset.type==="number")v=parseFloat(v);updates[x.dataset.setting]=v});const body={updates};if(action==="apply")body.confirm="APPLY SETTINGS";$("#settingsResult").textContent=JSON.stringify(await api(`/api/settings/${action}`,{method:"POST",body:JSON.stringify(body)}),null,2)}
+async function loadAudit(){const a=await api("/api/audit");$("#audit").innerHTML=a.slice(0,30).map(x=>`<p>${new Date(x.timestamp*1000).toLocaleString()} · ${esc(x.action)} · ${esc(x.result)}</p>`).join("")}
+document.addEventListener("click",async e=>{const b=e.target.closest("button");if(!b)return;try{if(b.dataset.action) say((await api(`/api/action/${b.dataset.action}`,{method:"POST",body:"{}"})).output||"Completed");if(b.dataset.mod){const confirm=b.dataset.mod==="ban"?"BAN PLAYER":"";await api(`/api/${b.dataset.mod}`,{method:"POST",body:JSON.stringify({userid:b.dataset.id,confirm,message:"Operator action"})});say(`${b.dataset.mod} completed`)}if(b.dataset.cancel)await api(`/api/jobs/${b.dataset.cancel}/cancel`,{method:"POST",body:"{}"});await refresh()}catch(x){say(x.message)}});
+$("#connect").onclick=unlock;$("#planSettings").onclick=()=>settings("plan");$("#applySettings").onclick=()=>settings("apply");
+$("#announce").onsubmit=async e=>{e.preventDefault();await api("/api/announce",{method:"POST",body:JSON.stringify({message:new FormData(e.target).get("message")})});e.target.reset()};
+$("#job").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);await api("/api/jobs",{method:"POST",body:JSON.stringify({type:f.get("type"),due_at:Math.floor(new Date(f.get("due_at")).getTime()/1000),message:f.get("message")})});e.target.reset();refresh()};
+$("#token").value=localStorage.getItem("palworld-token")||"";refresh();setInterval(refresh,10000);

@@ -1,0 +1,12 @@
+[Unit]
+Description=Check Steam for Palworld updates every 30 minutes
+
+[Timer]
+OnBootSec=10min
+OnUnitActiveSec=30min
+RandomizedDelaySec=2min
+Persistent=true
+Unit=palworld-update-check.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,10 @@
+[Unit]
+Description=Record Palworld operational history
+After=palworld.service
+
+[Service]
+Type=oneshot
+User=palworld
+Group=palworld
+EnvironmentFile=/etc/palworld-server.env
+ExecStart=/usr/bin/python3 /usr/local/lib/palworld/collect-history.py

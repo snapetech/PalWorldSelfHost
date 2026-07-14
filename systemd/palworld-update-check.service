@@ -1,0 +1,9 @@
+[Unit]
+Description=Check and safely apply Palworld server updates
+After=network-online.target palworld.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/palworld-server.env
+ExecStart=/usr/bin/python3 /usr/local/lib/palworld/update-orchestrator.py
+TimeoutStartSec=4h

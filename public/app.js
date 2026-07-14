@@ -92,6 +92,12 @@ function setScale(next) {
   $("#mapContent").style.width = `${scale * 100}%`;
   if (scale === 1) $(".map-wrap").scrollTo(0, 0);
 }
+function drawHistory(samples) {
+  const points=(samples||[]).filter(x=>Number.isFinite(x.players));
+  if(!points.length){$("#historyLine").setAttribute("points","");return}
+  const min=points[0].timestamp,max=points.at(-1).timestamp||min+1,peak=Math.max(1,...points.map(x=>x.players));
+  $("#historyLine").setAttribute("points",points.map(x=>`${(x.timestamp-min)/(max-min||1)*1000},${170-x.players/peak*150}`).join(" "));
+}
 
 async function refresh() {
   try {
@@ -109,6 +115,9 @@ async function refresh() {
     $("#serverName").textContent = data.name || "Palworld server";
     $("#updated").textContent =
       `Signal updated ${new Date(data.generated_at * 1000).toLocaleTimeString()}`;
+    drawHistory(data.history);
+    const last=data.maintenance_result||{};
+    $("#lastMaintenance").textContent=last.result?`Last maintenance: ${last.result}${last.finished_at?` · ${new Date(last.finished_at*1000).toLocaleString()}`:""}`:"";
     drawPlayers(data.players || []);
   } catch {
     $("#state").textContent = "SIGNAL LOST";

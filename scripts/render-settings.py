@@ -2,6 +2,7 @@
 """Render PalWorldSettings.ini from the server's shipped defaults."""
 
 import argparse
+import json
 import re
 from pathlib import Path
 
@@ -24,6 +25,7 @@ def main() -> None:
     parser.add_argument("--player-exp", required=True, type=float)
     parser.add_argument("--admin-password", required=True)
     parser.add_argument("--rest-port", required=True, type=int)
+    parser.add_argument("--overrides", type=Path)
     args = parser.parse_args()
 
     text = args.template.read_text()
@@ -38,6 +40,16 @@ def main() -> None:
     text = replace(text, "RCONEnabled", "False")
     text = replace(text, "RESTAPIEnabled", "True", required=False)
     text = replace(text, "RESTAPIPort", str(args.rest_port), required=False)
+    if args.overrides and args.overrides.exists():
+        overrides = json.loads(args.overrides.read_text())
+        for key, value in overrides.items():
+            if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", key):
+                raise SystemExit(f"invalid override key: {key!r}")
+            if isinstance(value, bool): rendered = "True" if value else "False"
+            elif isinstance(value, (int, float)): rendered = str(value)
+            elif isinstance(value, str): rendered = f'"{value.replace(chr(34), "")}"'
+            else: raise SystemExit(f"unsupported override value for {key!r}")
+            text = replace(text, key, rendered)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     tmp = args.output.with_suffix(args.output.suffix + ".tmp")
     tmp.write_text(text)

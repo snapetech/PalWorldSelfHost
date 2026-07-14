@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+lib=${PALWORLD_LIB_DIR:-/usr/local/lib/palworld}
+usage(){ echo "usage: palworldctl status|players|save|announce TEXT|backup [tier]|restart|update-check|maintenance|settings ...|restore ...|diagnose|preflight|audit"; }
+cmd=${1:-}; shift || true
+case "$cmd" in
+ status) systemctl status palworld.service --no-pager; "$lib/rest-client.py" info ;;
+ players) "$lib/rest-client.py" players ;;
+ save) "$lib/rest-client.py" save ;;
+ announce) "$lib/rest-client.py" announce --message "$*" ;;
+ backup) sudo "$lib/backup.sh" "${1:-daily}" ;;
+ restart) sudo "$lib/graceful-restart.sh" ;;
+ update-check) "$lib/update-orchestrator.py" ;;
+ maintenance) sudo systemctl start palworld-maintenance.service ;;
+ settings) "$lib/settings-manager.py" "$@" ;;
+ restore) sudo -E "$lib/restore.py" "$@" ;;
+ diagnose) "$lib/diagnose.py" "$@" ;;
+ preflight) "$lib/preflight.py" "$@" ;;
+ audit) tail -n "${1:-50}" "${PALWORLD_STATE_DIR:-/var/lib/palworld}/audit.jsonl" ;;
+ *) usage; exit 2;;
+esac

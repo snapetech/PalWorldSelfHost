@@ -1,0 +1,11 @@
+[Unit]
+Description=Record Palworld history every five minutes
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=5min
+Persistent=true
+Unit=palworld-history.service
+
+[Install]
+WantedBy=timers.target

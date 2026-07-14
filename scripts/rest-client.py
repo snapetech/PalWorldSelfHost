@@ -28,16 +28,19 @@ def request(endpoint: str, method: str = "GET", payload=None):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("endpoint", choices=["info", "players", "settings", "metrics", "save", "announce", "shutdown", "stop"])
+    parser.add_argument("endpoint", choices=["info", "players", "settings", "metrics", "save", "announce", "shutdown", "stop", "kick", "ban", "unban"])
     parser.add_argument("--message", default="")
     parser.add_argument("--wait", type=int, default=0)
+    parser.add_argument("--userid", default="")
     args = parser.parse_args()
     method = "GET" if args.endpoint in {"info", "players", "settings", "metrics"} else "POST"
     payload = None
     if args.endpoint == "announce": payload = {"message": args.message}
     if args.endpoint == "shutdown": payload = {"waittime": args.wait, "message": args.message}
+    if args.endpoint in {"kick", "ban", "unban"}:
+        if not args.userid: parser.error(f"{args.endpoint} requires --userid")
+        payload = {"userid": args.userid, "message": args.message}
     print(json.dumps(request(args.endpoint, method, payload), indent=2, sort_keys=True))
 
 
 if __name__ == "__main__": main()
-
