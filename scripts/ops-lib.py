@@ -56,7 +56,8 @@ def audit(action: str, result: str, **details) -> dict:
         fcntl.flock(handle, fcntl.LOCK_EX)
         handle.write(json.dumps(event, sort_keys=True) + "\n")
         handle.flush(); os.fsync(handle.fileno())
-    os.chmod(audit_file, 0o660)
+    try: os.chmod(audit_file, 0o660)
+    except PermissionError: pass
     return event
 
 

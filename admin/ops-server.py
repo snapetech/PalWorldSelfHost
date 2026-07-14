@@ -11,7 +11,7 @@ ops = importlib.util.module_from_spec(spec); spec.loader.exec_module(ops)
 
 def run(*args, timeout=30):
     p = subprocess.run(args, text=True, capture_output=True, timeout=timeout)
-    return {"ok": p.returncode == 0, "code": p.returncode, "output": (p.stdout + p.stderr).strip()[-12000:]}
+    return {"ok": p.returncode == 0, "code": p.returncode, "output": (p.stdout + p.stderr).strip()[-100000:]}
 
 def rest(endpoint, *args):
     result = run(str(LIB / "rest-client.py"), endpoint, *args)
