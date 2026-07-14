@@ -23,7 +23,7 @@ SETTINGS="$PALWORLD_INSTALL_DIR/Pal/Saved/Config/LinuxServer/PalWorldSettings.in
 
 acquire_mutation_lock() {
     [[ "${PALWORLD_LOCK_HELD:-false}" == true ]] && return 0
-    install -d -m 0750 "$PALWORLD_STATE_DIR"
+    mkdir -p "$PALWORLD_STATE_DIR"
     exec 9>"$PALWORLD_STATE_DIR/mutation.lock"
     flock -n 9 || { echo "another PalWorldSelfHost mutation is already running" >&2; exit 75; }
     export PALWORLD_LOCK_HELD=true

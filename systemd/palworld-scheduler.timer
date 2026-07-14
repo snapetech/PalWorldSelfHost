@@ -2,8 +2,7 @@
 Description=Check Palworld scheduled jobs every minute
 
 [Timer]
-OnBootSec=2min
-OnUnitActiveSec=1min
+OnCalendar=*-*-* *:*:00
 AccuracySec=10s
 Persistent=true
 Unit=palworld-scheduler.service

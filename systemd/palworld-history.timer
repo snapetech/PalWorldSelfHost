@@ -2,8 +2,7 @@
 Description=Record Palworld history every five minutes
 
 [Timer]
-OnBootSec=5min
-OnUnitActiveSec=5min
+OnCalendar=*-*-* *:0/5:00
 Persistent=true
 Unit=palworld-history.service
 
