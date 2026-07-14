@@ -38,4 +38,4 @@ jobs:
       - name: Verify deployed content
         run: |
           test -s /srv/static/palworld/index.html
-          grep -q 'RECOMMENDED CLIENT MODS' /srv/static/palworld/index.html
+          grep -q 'id="mods-title">Recommended mods' /srv/static/palworld/index.html
