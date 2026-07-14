@@ -1,0 +1,11 @@
+[Unit]
+Description=Palworld nightly 05:00 maintenance
+
+[Timer]
+OnCalendar=*-*-* 04:55:00
+Persistent=false
+AccuracySec=1min
+Unit=palworld-maintenance.service
+
+[Install]
+WantedBy=timers.target

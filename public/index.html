@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Live status and player map for a self-hosted Palworld server."
+    />
+    <title>Palworld server status</title>
+    <link rel="stylesheet" href="/palworld/style.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <a href="/">PALWORLD SELF-HOST</a
+        ><span class="signal"><i></i><b id="state">ACQUIRING SIGNAL</b></span>
+      </header>
+      <main>
+        <section class="hero">
+          <div>
+            <p class="eyebrow">PALWORLD COMMUNITY SERVER / LIVE WORLD</p>
+            <h1 id="serverName">Palworld server</h1>
+            <p class="lede">
+              Half-rate experience, nothing dropped on death, and a live
+              Palpagos expedition map.
+            </p>
+            <p class="join-note">
+              Find this server in Palworld’s community server browser using the name above.
+            </p>
+          </div>
+          <dl class="telemetry">
+            <div>
+              <dt>Players</dt>
+              <dd>
+                <strong id="players">—</strong><span id="capacity">/ 32</span>
+              </dd>
+            </div>
+            <div>
+              <dt>World uptime</dt>
+              <dd id="uptime">—</dd>
+            </div>
+            <div>
+              <dt>Next maintenance</dt>
+              <dd id="maintenance">—</dd>
+            </div>
+            <div>
+              <dt>World day</dt>
+              <dd id="day">—</dd>
+            </div>
+          </dl>
+        </section>
+        <section class="chart">
+          <div class="chart-head">
+            <div>
+              <p class="eyebrow">LIVE POSITION ARRAY</p>
+              <h2>Palpagos expedition chart</h2>
+            </div>
+            <p id="updated">Waiting for telemetry…</p>
+          </div>
+          <div class="map-tools">
+            <button id="zoomOut" aria-label="Zoom map out">−</button
+            ><button id="zoomIn" aria-label="Zoom map in">+</button
+            ><button id="resetMap">Reset</button>
+          </div>
+          <div class="legend" aria-label="Map layers">
+            <strong>Layers</strong
+            ><label
+              ><input type="checkbox" data-layer="players" checked /><i
+                class="player-key"
+              ></i>
+              Players</label
+            ><label
+              ><input type="checkbox" data-layer="fastTravelPoint" /><i
+                class="travel-key"
+              ></i>
+              Fast travel</label
+            ><label
+              ><input type="checkbox" data-layer="towerTravelPoint" /><i
+                class="tower-key"
+              ></i>
+              Towers</label
+            >
+          </div>
+          <div class="map-wrap">
+            <div id="mapContent" class="map-content">
+              <img
+                src="/palworld/palpagos-map.webp"
+                alt="Palpagos Islands world map"
+                width="8192"
+                height="8192"
+                draggable="false"
+              /><svg id="map" viewBox="0 0 1000 1000" aria-hidden="true">
+                <defs>
+                  <filter id="glow">
+                    <feGaussianBlur stdDeviation="5" result="b" />
+                    <feMerge>
+                      <feMergeNode in="b" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                </defs>
+                <g id="locations"></g>
+                <g id="markers"></g>
+              </svg>
+            </div>
+            <div id="empty" class="empty">
+              <b>No explorers currently online</b
+              ><span>The field signal will place connected players here.</span>
+            </div>
+          </div>
+          <ol id="roster" class="roster"></ol>
+        </section>
+      </main>
+      <footer>
+        <span>Position telemetry refreshes every 15 seconds.</span
+        ><span
+          >Map adapted from ARXII-13’s Apache-2.0 Palworld Interactive
+          Map.</span
+        >
+      </footer>
+    </div>
+    <script src="/palworld/app.js"></script>
+  </body>
+</html>

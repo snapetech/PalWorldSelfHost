@@ -1,0 +1,16 @@
+[Unit]
+Description=PalWorldSelfHost private operations console
+After=palworld.service
+
+[Service]
+Type=simple
+User=palworld
+Group=palworld
+EnvironmentFile=/etc/palworld-server.env
+WorkingDirectory=/usr/local/share/palworld-ops
+ExecStart=/usr/bin/python3 /usr/local/share/palworld-ops/ops-server.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

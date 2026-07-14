@@ -1,0 +1,10 @@
+[Unit]
+Description=Check Palworld health every five minutes
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=5min
+RandomizedDelaySec=20s
+
+[Install]
+WantedBy=timers.target

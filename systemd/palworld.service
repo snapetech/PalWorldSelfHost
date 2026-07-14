@@ -1,0 +1,20 @@
+[Unit]
+Description=Palworld dedicated server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=palworld
+Group=palworld
+Environment=HOME=/var/lib/palworld
+Environment=PALWORLD_ENV_FILE=/etc/palworld-server.env
+ExecStart=/usr/local/lib/palworld/start.sh
+Restart=on-failure
+RestartSec=10s
+TimeoutStopSec=120s
+KillSignal=SIGINT
+LimitNOFILE=100000
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,10 @@
+[Unit]
+Description=Palworld nightly backup and update maintenance
+Requires=palworld.service
+After=network-online.target
+
+[Service]
+Type=oneshot
+Environment=PALWORLD_ENV_FILE=/etc/palworld-server.env
+ExecStart=/usr/local/lib/palworld/maintenance.sh
+TimeoutStartSec=2h

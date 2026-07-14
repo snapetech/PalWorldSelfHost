@@ -1,0 +1,1 @@
+palworld ALL=(root) NOPASSWD: /usr/bin/systemctl restart palworld.service, /usr/local/lib/palworld/backup.sh

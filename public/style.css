@@ -1,0 +1,347 @@
+:root {
+  --deep: #092c36;
+  --ocean: #0f5260;
+  --cyan: #85e7e1;
+  --mist: #dff6f0;
+  --coral: #ff765e;
+  --ink: #082129;
+  --paper: #eff8f3;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Trebuchet MS", Verdana, sans-serif;
+}
+.page {
+  min-height: 100vh;
+}
+header,
+main,
+footer {
+  width: min(1180px, calc(100% - 40px));
+  margin: auto;
+}
+header {
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #97bab6;
+  font: 700 12px/1 monospace;
+  letter-spacing: 0.13em;
+}
+header a {
+  color: inherit;
+  text-decoration: none;
+}
+.signal {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.signal i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #9e4a3b;
+  box-shadow: 0 0 0 5px #9e4a3b20;
+}
+.signal.online i {
+  background: #20a47d;
+  box-shadow: 0 0 0 5px #20a47d20;
+}
+.hero {
+  padding: 75px 0 58px;
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 70px;
+  align-items: end;
+}
+.eyebrow {
+  font: 700 11px/1.4 monospace;
+  letter-spacing: 0.14em;
+  color: var(--ocean);
+}
+h1,
+h2 {
+  margin: 0;
+  font-family: Impact, "Arial Narrow", sans-serif;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+h1 {
+  font-size: clamp(58px, 9vw, 118px);
+  line-height: 0.82;
+  letter-spacing: -0.02em;
+  color: var(--coral);
+}
+.lede {
+  max-width: 520px;
+  font-size: 18px;
+  line-height: 1.5;
+  margin: 34px 0 0;
+}
+.join-note {
+  margin: 13px 0 0;
+  font: 11px/1.5 monospace;
+  color: #476c70;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.telemetry {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 0;
+  border-top: 2px solid var(--ink);
+}
+.telemetry div {
+  padding: 18px 0;
+  border-bottom: 1px solid #97bab6;
+}
+.telemetry div:nth-child(odd) {
+  border-right: 1px solid #97bab6;
+}
+.telemetry div:nth-child(even) {
+  padding-left: 22px;
+}
+.telemetry dt {
+  font: 10px monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #476c70;
+}
+.telemetry dd {
+  margin: 8px 0 0;
+  font: 700 25px monospace;
+}
+.telemetry strong {
+  font-size: 40px;
+}
+.telemetry span {
+  color: #58787b;
+}
+.chart {
+  background: var(--deep);
+  color: var(--mist);
+  padding: 30px;
+}
+.chart-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  margin-bottom: 25px;
+}
+.chart .eyebrow {
+  color: var(--cyan);
+}
+h2 {
+  font-size: clamp(31px, 5vw, 61px);
+  line-height: 0.9;
+}
+.chart-head > p {
+  font: 11px monospace;
+  color: #91b8b8;
+}
+.map-wrap {
+  position: relative;
+  overflow: auto;
+  border: 1px solid #5d9a9b;
+  background: #071b20;
+  aspect-ratio: 16/10;
+  scrollbar-color: #5d9a9b #071b20;
+}
+.map-content {
+  position: relative;
+  width: 100%;
+  transform-origin: top left;
+  transition: width 0.18s ease;
+}
+.map-content > img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.map-content > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.marker circle {
+  fill: var(--coral);
+  stroke: #fff4dc;
+  stroke-width: 4;
+  filter: url(#glow);
+}
+.marker text {
+  fill: #fff;
+  font: 700 18px monospace;
+  paint-order: stroke;
+  stroke: var(--deep);
+  stroke-width: 6;
+}
+.location {
+  cursor: help;
+}
+.location circle {
+  stroke: #061c22;
+  stroke-width: 2;
+}
+.location.travel circle {
+  fill: #70e1d6;
+}
+.location.tower circle {
+  fill: #ffd063;
+}
+.map-tools {
+  display: flex;
+  gap: 6px;
+  margin: 0 0 10px;
+}
+.map-tools button {
+  border: 1px solid #5d9a9b;
+  background: transparent;
+  color: var(--mist);
+  padding: 7px 12px;
+  font: 700 12px monospace;
+  cursor: pointer;
+}
+.map-tools button:hover,
+.map-tools button:focus-visible {
+  background: var(--cyan);
+  color: var(--deep);
+}
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin: -42px 0 12px auto;
+  width: max-content;
+  font: 11px monospace;
+}
+.legend strong {
+  color: var(--cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.legend label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+.legend input {
+  accent-color: var(--coral);
+}
+.legend i {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.player-key {
+  background: var(--coral);
+}
+.travel-key {
+  background: #70e1d6;
+}
+.tower-key {
+  background: #ffd063;
+}
+.empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  pointer-events: none;
+  text-shadow: 0 2px 8px #04191d;
+}
+.empty b {
+  font: 400 clamp(28px, 5vw, 60px) Impact;
+  text-transform: uppercase;
+}
+.empty span {
+  margin-top: 10px;
+  color: #a7cfca;
+}
+.roster {
+  list-style: none;
+  padding: 0;
+  margin: 22px 0 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: #45747a;
+}
+.roster:empty {
+  display: none;
+}
+.roster li {
+  display: flex;
+  justify-content: space-between;
+  background: var(--deep);
+  padding: 13px 16px;
+  font: 12px monospace;
+}
+footer {
+  padding: 22px 0 40px;
+  border-top: 1px solid #97bab6;
+  display: flex;
+  justify-content: space-between;
+  font: 10px monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+@media (max-width: 750px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding-top: 55px;
+    gap: 45px;
+  }
+  .chart {
+    padding: 18px;
+  }
+  .chart-head {
+    display: block;
+  }
+  .chart-head > p {
+    margin-top: 12px;
+  }
+  .map-wrap {
+    aspect-ratio: 1;
+  }
+  .roster {
+    grid-template-columns: 1fr;
+  }
+  .join {
+    padding: 60px 0;
+  }
+  footer {
+    display: block;
+    line-height: 2;
+  }
+  .telemetry dd {
+    font-size: 19px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .marker {
+    animation: arrive 0.5s ease both;
+  }
+  @keyframes arrive {
+    from {
+      opacity: 0;
+      transform: scale(0.4);
+      transform-origin: center;
+    }
+  }
+}
