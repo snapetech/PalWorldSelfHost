@@ -139,6 +139,60 @@ h2 { font-size: clamp(30px, 4vw, 48px); line-height: 1.05; }
 
 footer { display: flex; justify-content: space-between; gap: 30px; padding: 28px 0 40px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; line-height: 1.5; }
 
+@media (min-width: 1200px) {
+  body::before { height: 100%; background: linear-gradient(135deg, #dff5ff 0%, #f7fbff 38%, #edf6fb 100%); }
+  .site-header, main, footer { width: min(1600px, calc(100% - 48px)); }
+  .site-header { height: 68px; }
+  main {
+    display: grid;
+    grid-template-columns: minmax(300px, .8fr) minmax(620px, 1.75fr) minmax(310px, .85fr);
+    gap: 18px;
+    align-items: start;
+    padding: 20px 0 26px;
+  }
+  .hero {
+    display: block;
+    min-height: 0;
+    padding: 22px 4px 0 0;
+  }
+  h1 { font-size: clamp(48px, 4vw, 66px); }
+  .lede { margin-top: 18px; font-size: 15px; line-height: 1.55; }
+  .join-callout { display: block; margin-top: 20px; padding-top: 16px; }
+  .join-callout p { margin-top: 10px; font-size: 12px; }
+  .telemetry { margin-top: 24px; border-radius: 14px; box-shadow: 0 14px 38px rgba(18,64,99,.1); }
+  .telemetry div { min-height: 88px; padding: 14px; }
+  .telemetry dt { font-size: 8px; }
+  .telemetry dd { margin-top: 9px; font-size: 16px; }
+  .telemetry strong { font-size: 32px; }
+  .telemetry dd span { font-size: 14px; }
+  .maintenance-stat dd { font-size: 11px; }
+
+  .map-section { padding: 20px; border-radius: 20px; }
+  .map-section h2 { font-size: clamp(30px, 2.5vw, 40px); }
+  .map-heading > p { font-size: 10px; }
+  .map-toolbar { margin: 10px 0; }
+  .legend { font-size: 10px; }
+  .map-wrap { border-radius: 11px; }
+  .empty b { font-size: 34px; }
+
+  .lower-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+    margin: 0;
+  }
+  .activity, .recommended-mods { padding: 22px; border-radius: 18px; }
+  .lower-grid h2 { font-size: 28px; }
+  .history-chart { margin-top: 18px; }
+  .history-chart svg { height: 118px; }
+  .mods-intro { margin: 14px 0; font-size: 12px; line-height: 1.45; }
+  .mod-list li { grid-template-columns: 25px 1fr; gap: 5px; padding: 10px 0; }
+  .mod-list a { font-size: 13px; }
+  .mod-list small { margin-top: 2px; font-size: 10px; }
+  .fine-print { margin-top: 10px; font-size: 9px; }
+  footer { padding-top: 20px; }
+}
+
 @media (max-width: 900px) {
   .hero { grid-template-columns: 1fr; gap: 40px; padding: 58px 0; }
   .telemetry { max-width: 620px; }
