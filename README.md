@@ -100,15 +100,11 @@ Important variables:
 
 ## Public status page
 
-Static assets are installed to `PALWORLD_PUBLIC_DIR`. The public page requests
-`/palworld/status.json`; route only that URL to the loopback operations service:
+Static assets are installed to `PALWORLD_PUBLIC_DIR`. A timer atomically publishes
+sanitized `status.json` there every 15 seconds, so public ingress serves files only
+and never proxies a request to the operations service:
 
 ```caddyfile
-handle /palworld/status.json {
-    rewrite * /api/public-status
-    reverse_proxy 127.0.0.1:8213
-}
-
 handle_path /palworld/* {
     root * /var/www/palworld
     file_server

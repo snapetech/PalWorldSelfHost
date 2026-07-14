@@ -52,7 +52,7 @@ install -m 0755 "$repo/scripts/palworldctl" /usr/local/bin/palworldctl
 install -d -m 0755 /usr/local/share/palworld-ops/static
 install -m 0755 "$repo/admin/ops-server.py" /usr/local/share/palworld-ops/ops-server.py
 install -m 0644 "$repo/admin/static/"* /usr/local/share/palworld-ops/static/
-install -d -m 0755 "$PALWORLD_PUBLIC_DIR"
+install -d -o "$PALWORLD_USER" -g "$PALWORLD_GROUP" -m 0755 "$PALWORLD_PUBLIC_DIR"
 install -m 0644 "$repo/public/"* "$PALWORLD_PUBLIC_DIR/"
 install -m 0644 "$repo/systemd/palworld.service" /etc/systemd/system/palworld.service
 install -m 0644 "$repo/systemd/palworld-maintenance.service" /etc/systemd/system/palworld-maintenance.service
@@ -70,6 +70,8 @@ install -m 0644 "$repo/systemd/palworld-history.service" /etc/systemd/system/pal
 install -m 0644 "$repo/systemd/palworld-history.timer" /etc/systemd/system/palworld-history.timer
 install -m 0644 "$repo/systemd/palworld-backup-"* /etc/systemd/system/
 install -m 0644 "$repo/systemd/palworld-bot.service" /etc/systemd/system/palworld-bot.service
+install -m 0644 "$repo/systemd/palworld-public-status.service" /etc/systemd/system/palworld-public-status.service
+install -m 0644 "$repo/systemd/palworld-public-status.timer" /etc/systemd/system/palworld-public-status.timer
 install -o root -g root -m 0440 "$repo/config/palworld-ops.sudoers" /etc/sudoers.d/palworld-ops
 
 if [[ "${PALWORLD_SKIP_UPDATE:-false}" != true ]]; then
@@ -79,5 +81,5 @@ else
     sudo -u "$PALWORLD_USER" env HOME="$(getent passwd "$PALWORLD_USER" | cut -d: -f6)" PALWORLD_ENV_FILE="$env_file" /usr/local/lib/palworld/start.sh --render-only 2>/dev/null || true
 fi
 systemctl daemon-reload
-systemctl enable --now palworld.service palworld-maintenance.timer palworld-ops.service palworld-health.timer palworld-update-check.timer palworld-restore-drill.timer palworld-scheduler.timer palworld-history.timer palworld-backup-hourly.timer palworld-backup-weekly.timer
+systemctl enable --now palworld.service palworld-maintenance.timer palworld-ops.service palworld-health.timer palworld-update-check.timer palworld-restore-drill.timer palworld-scheduler.timer palworld-history.timer palworld-backup-hourly.timer palworld-backup-weekly.timer palworld-public-status.timer
 if [[ -n "${PALWORLD_MATRIX_ACCESS_TOKEN:-}" ]]; then systemctl enable --now palworld-bot.service; fi
