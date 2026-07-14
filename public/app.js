@@ -5,7 +5,6 @@ const layers = {
   fastTravelPoint: false,
   towerTravelPoint: false,
 };
-let scale = 1;
 let locations = [];
 
 function duration(seconds) {
@@ -87,11 +86,6 @@ function drawPlayers(players) {
   });
 }
 
-function setScale(next) {
-  scale = Math.max(1, Math.min(3, next));
-  $("#mapContent").style.width = `${scale * 100}%`;
-  if (scale === 1) $(".map-wrap").scrollTo(0, 0);
-}
 function drawHistory(samples) {
   const points=(samples||[]).filter(x=>Number.isFinite(x.players));
   if(!points.length){$("#historyLine").setAttribute("points","");return}
@@ -132,10 +126,6 @@ document.querySelectorAll("[data-layer]").forEach((input) => {
     else drawLocations();
   });
 });
-$("#zoomIn").addEventListener("click", () => setScale(scale + 0.5));
-$("#zoomOut").addEventListener("click", () => setScale(scale - 0.5));
-$("#resetMap").addEventListener("click", () => setScale(1));
-
 fetch("/palworld/locations.json")
   .then((response) => response.json())
   .then((data) => {
