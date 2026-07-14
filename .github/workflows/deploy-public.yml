@@ -33,9 +33,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Publish static assets atomically
         env:
-          PALWORLD_PUBLIC_DIR: /var/www/snape.tech/palworld
+          PALWORLD_PUBLIC_DIR: /srv/static/palworld
         run: ./scripts/deploy-public.sh
       - name: Verify deployed content
         run: |
-          test -s /var/www/snape.tech/palworld/index.html
-          grep -q 'RECOMMENDED CLIENT MODS' /var/www/snape.tech/palworld/index.html
+          test -s /srv/static/palworld/index.html
+          grep -q 'RECOMMENDED CLIENT MODS' /srv/static/palworld/index.html

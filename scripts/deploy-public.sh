@@ -17,6 +17,7 @@ fi
 
 chmod -R a+rX "$staging"
 if [[ -d "$target_dir" ]]; then
+    chown --reference="$target_dir" "$staging"
     old="$parent/.palworld-public.old.$$"
     mv -- "$target_dir" "$old"
     mv -- "$staging" "$target_dir"
