@@ -217,6 +217,22 @@ h2 {
   background: var(--cyan);
   color: var(--deep);
 }
+.recommended-mods ol {
+  margin: 20px 0;
+  padding-left: 1.5rem;
+  line-height: 1.7;
+}
+.recommended-mods li + li {
+  margin-top: 8px;
+}
+.recommended-mods a {
+  color: var(--ocean);
+  font-weight: 700;
+}
+.recommended-mods a:hover,
+.recommended-mods a:focus-visible {
+  color: var(--coral);
+}
 .legend {
   display: flex;
   align-items: center;
