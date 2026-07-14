@@ -20,14 +20,14 @@ def atomic_json(path: pathlib.Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix + ".tmp")
     temporary.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n")
-    os.chmod(temporary, 0o640)
+    os.chmod(temporary, 0o660)
     temporary.replace(path)
 
 
 def read_json(path: pathlib.Path, default):
     try:
         return json.loads(path.read_text())
-    except (FileNotFoundError, json.JSONDecodeError):
+    except (FileNotFoundError, PermissionError, json.JSONDecodeError):
         return default
 
 
@@ -51,10 +51,12 @@ def audit(action: str, result: str, **details) -> dict:
              "actor": os.environ.get("SUDO_USER") or os.environ.get("USER") or "system",
              "action": action, "result": result, **details}
     STATE.mkdir(parents=True, exist_ok=True)
-    with (STATE / "audit.jsonl").open("a") as handle:
+    audit_file = STATE / "audit.jsonl"
+    with audit_file.open("a") as handle:
         fcntl.flock(handle, fcntl.LOCK_EX)
         handle.write(json.dumps(event, sort_keys=True) + "\n")
         handle.flush(); os.fsync(handle.fileno())
+    os.chmod(audit_file, 0o660)
     return event
 
 

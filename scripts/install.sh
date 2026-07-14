@@ -32,6 +32,7 @@ id "$PALWORLD_USER" >/dev/null 2>&1 || useradd --system --gid "$PALWORLD_GROUP" 
 chown root:"$PALWORLD_GROUP" "$env_file"
 chmod 0640 "$env_file"
 install -d -o "$PALWORLD_USER" -g "$PALWORLD_GROUP" "$PALWORLD_INSTALL_DIR" "$PALWORLD_BACKUP_LOCAL_ROOT" "$PALWORLD_STATE_DIR"
+chown root:"$PALWORLD_GROUP" "$PALWORLD_STATE_DIR"; chmod 2770 "$PALWORLD_STATE_DIR"
 findmnt --target "$PALWORLD_BACKUP_LOCAL_ROOT" >/dev/null
 if [[ "$PALWORLD_REQUIRE_LVM_BACKUP" == true ]]; then
     source_name=$(findmnt -n -o SOURCE --target "$PALWORLD_BACKUP_LOCAL_ROOT")
