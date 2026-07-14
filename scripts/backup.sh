@@ -28,9 +28,16 @@ tar --zstd -C "$PALWORLD_INSTALL_DIR" -cf "$archive" Pal/Saved DefaultPalWorldSe
 sha256sum "$archive" > "$archive.sha256"
 "$SCRIPT_DIR/verify-backup.sh" "$archive"
 "$SCRIPT_DIR/backup-manifest.py" "$archive" "$tier" > "$archive.manifest.json"
-rclone copyto "$archive" "$PALWORLD_RCLONE_DEST/$(basename "$archive")" --immutable
-rclone copyto "$archive.sha256" "$PALWORLD_RCLONE_DEST/$(basename "$archive.sha256")" --immutable
-rclone copyto "$archive.manifest.json" "$PALWORLD_RCLONE_DEST/$(basename "$archive.manifest.json")" --immutable
+offsite_rc=0
+rclone copyto "$archive" "$PALWORLD_RCLONE_DEST/$(basename "$archive")" --immutable || offsite_rc=$?
+if (( offsite_rc == 0 )); then rclone copyto "$archive.sha256" "$PALWORLD_RCLONE_DEST/$(basename "$archive.sha256")" --immutable || offsite_rc=$?; fi
+if (( offsite_rc == 0 )); then rclone copyto "$archive.manifest.json" "$PALWORLD_RCLONE_DEST/$(basename "$archive.manifest.json")" --immutable || offsite_rc=$?; fi
 "$SCRIPT_DIR/prune-backups.py"
+if (( offsite_rc != 0 )); then
+    ops_event audit backup offsite-failed --details "$(basename "$archive")"
+    ops_event notify backup-failed "Local backup verified, but offsite upload failed: $(basename "$archive")" --severity error
+    echo "$archive"
+    exit "$offsite_rc"
+fi
 ops_event audit backup ok --details "$(basename "$archive")"
 echo "$archive"
