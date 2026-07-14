@@ -111,6 +111,11 @@ handle_path /palworld/* {
 }
 ```
 
+Changes under `public/` are also deployed from `main` by
+`.github/workflows/deploy-public.yml`. The repository-scoped `kspls0` runner
+publishes atomically with `scripts/deploy-public.sh` and preserves the current
+`status.json` while replacing versioned assets.
+
 The map and location dataset come from
 [ARXII-13/Palworld-Interactive-Map](https://github.com/ARXII-13/Palworld-Interactive-Map).
 Its Apache 2.0 license is retained in `public/MAP-LICENSE.txt`; the underlying

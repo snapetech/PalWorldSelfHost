@@ -1,0 +1,41 @@
+name: Deploy public site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - public/**
+      - scripts/deploy-public.sh
+      - .github/workflows/deploy-public.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: palworld-public-production
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash -n scripts/deploy-public.sh
+      - run: test -s public/index.html && test -s public/style.css && test -s public/app.js
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, linux, x64, host, kspls0, palworld]
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish static assets atomically
+        env:
+          PALWORLD_PUBLIC_DIR: /var/www/snape.tech/palworld
+        run: ./scripts/deploy-public.sh
+      - name: Verify deployed content
+        run: |
+          test -s /var/www/snape.tech/palworld/index.html
+          grep -q 'RECOMMENDED CLIENT MODS' /var/www/snape.tech/palworld/index.html
