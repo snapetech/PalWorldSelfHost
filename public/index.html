@@ -3,152 +3,103 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta
-      name="description"
-      content="Live status and player map for a self-hosted Palworld server."
-    />
-    <title>Palworld server status</title>
+    <meta name="description" content="Live status, player map, and connection guide for the Snape.tech Palworld community server." />
+    <title>Snape.tech Palworld</title>
     <link rel="stylesheet" href="/palworld/style.css" />
   </head>
   <body>
-    <div class="page">
-      <header>
-        <a href="/">PALWORLD SELF-HOST</a
-        ><span class="signal"><i></i><b id="state">ACQUIRING SIGNAL</b></span>
-      </header>
-      <main>
-        <section class="hero">
+    <header class="site-header">
+      <a class="brand" href="/palworld/" aria-label="Snape.tech Palworld home">
+        <span class="brand-mark" aria-hidden="true">P</span>
+        <span><b>SNAPE.TECH</b><small>PALWORLD</small></span>
+      </a>
+      <div class="signal" role="status"><i></i><b id="state">ACQUIRING SIGNAL</b></div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="kicker">Community server · Palpagos Islands</p>
+          <h1 id="serverName">Snape.tech Palworld</h1>
+          <p class="lede">A slower, friendlier survival world: half-rate experience, no inventory dropped on death, and a live expedition map.</p>
+          <div class="join-callout">
+            <span>How to join</span>
+            <p>Open <b>Multiplayer → Community Servers</b> and search for <b id="serverSearchName">Snape.tech Palworld</b>.</p>
+          </div>
+        </div>
+
+        <dl class="telemetry" aria-label="Server status">
+          <div class="players-stat">
+            <dt>Explorers online</dt>
+            <dd><strong id="players">—</strong><span id="capacity">/ 32</span></dd>
+          </div>
+          <div><dt>World uptime</dt><dd id="uptime">—</dd></div>
+          <div><dt>World day</dt><dd id="day">—</dd></div>
+          <div class="maintenance-stat"><dt>Next maintenance</dt><dd id="maintenance">—</dd></div>
+        </dl>
+      </section>
+
+      <section class="map-section" aria-labelledby="map-title">
+        <div class="section-heading map-heading">
           <div>
-            <p class="eyebrow">PALWORLD COMMUNITY SERVER / LIVE WORLD</p>
-            <h1 id="serverName">Palworld server</h1>
-            <p class="lede">
-              Half-rate experience, nothing dropped on death, and a live
-              Palpagos expedition map.
-            </p>
-            <p class="join-note">
-              Find this server in Palworld’s community server browser using the name above.
-            </p>
+            <p class="kicker">Live expedition map</p>
+            <h2 id="map-title">Where everyone is exploring</h2>
           </div>
-          <dl class="telemetry">
-            <div>
-              <dt>Players</dt>
-              <dd>
-                <strong id="players">—</strong><span id="capacity">/ 32</span>
-              </dd>
-            </div>
-            <div>
-              <dt>World uptime</dt>
-              <dd id="uptime">—</dd>
-            </div>
-            <div>
-              <dt>Next maintenance</dt>
-              <dd id="maintenance">—</dd>
-            </div>
-            <div>
-              <dt>World day</dt>
-              <dd id="day">—</dd>
-            </div>
-          </dl>
-        </section>
-        <section class="chart">
-          <div class="chart-head">
-            <div>
-              <p class="eyebrow">LIVE POSITION ARRAY</p>
-              <h2>Palpagos expedition chart</h2>
-            </div>
-            <p id="updated">Waiting for telemetry…</p>
-          </div>
-          <div class="map-tools">
-            <button id="zoomOut" aria-label="Zoom map out">−</button
-            ><button id="zoomIn" aria-label="Zoom map in">+</button
-            ><button id="resetMap">Reset</button>
+          <p id="updated">Waiting for telemetry…</p>
+        </div>
+
+        <div class="map-toolbar">
+          <div class="map-tools" aria-label="Map zoom controls">
+            <button id="zoomOut" aria-label="Zoom map out">−</button>
+            <button id="zoomIn" aria-label="Zoom map in">+</button>
+            <button id="resetMap">Reset view</button>
           </div>
           <div class="legend" aria-label="Map layers">
-            <strong>Layers</strong
-            ><label
-              ><input type="checkbox" data-layer="players" checked /><i
-                class="player-key"
-              ></i>
-              Players</label
-            ><label
-              ><input type="checkbox" data-layer="fastTravelPoint" /><i
-                class="travel-key"
-              ></i>
-              Fast travel</label
-            ><label
-              ><input type="checkbox" data-layer="towerTravelPoint" /><i
-                class="tower-key"
-              ></i>
-              Towers</label
-            >
+            <label><input type="checkbox" data-layer="players" checked /><i class="player-key"></i>Players</label>
+            <label><input type="checkbox" data-layer="fastTravelPoint" /><i class="travel-key"></i>Fast travel</label>
+            <label><input type="checkbox" data-layer="towerTravelPoint" /><i class="tower-key"></i>Towers</label>
           </div>
-          <div class="map-wrap">
-            <div id="mapContent" class="map-content">
-              <img
-                src="/palworld/palpagos-map.webp"
-                alt="Palpagos Islands world map"
-                width="8192"
-                height="8192"
-                draggable="false"
-              /><svg id="map" viewBox="0 0 1000 1000" aria-hidden="true">
-                <defs>
-                  <filter id="glow">
-                    <feGaussianBlur stdDeviation="5" result="b" />
-                    <feMerge>
-                      <feMergeNode in="b" />
-                      <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                  </filter>
-                </defs>
-                <g id="locations"></g>
-                <g id="markers"></g>
-              </svg>
-            </div>
-            <div id="empty" class="empty">
-              <b>No explorers currently online</b
-              ><span>The field signal will place connected players here.</span>
-            </div>
+        </div>
+
+        <div class="map-wrap">
+          <div id="mapContent" class="map-content">
+            <img src="/palworld/palpagos-map.webp" alt="Palpagos Islands world map" width="8192" height="8192" draggable="false" />
+            <svg id="map" viewBox="0 0 1000 1000" aria-hidden="true">
+              <defs><filter id="glow"><feGaussianBlur stdDeviation="5" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs>
+              <g id="locations"></g><g id="markers"></g>
+            </svg>
           </div>
-          <ol id="roster" class="roster"></ol>
+          <div id="empty" class="empty"><b>The islands are quiet</b><span>Connected players will appear here.</span></div>
+        </div>
+        <ol id="roster" class="roster"></ol>
+      </section>
+
+      <div class="lower-grid">
+        <section class="activity" aria-labelledby="activity-title">
+          <div class="section-heading compact">
+            <div><p class="kicker">Last seven days</p><h2 id="activity-title">World activity</h2></div>
+          </div>
+          <div class="history-chart"><span>Players</span><svg id="history" viewBox="0 0 1000 180" role="img" aria-label="Players online over the last seven days"><polyline id="historyLine" fill="none" vector-effect="non-scaling-stroke" /></svg></div>
+          <p id="lastMaintenance" class="fine-print"></p>
         </section>
-        <section class="activity"><p class="eyebrow">SEVEN-DAY ACTIVITY</p><h2>Player population</h2><svg id="history" viewBox="0 0 1000 180" role="img" aria-label="Players online over the last seven days"><polyline id="historyLine" fill="none" vector-effect="non-scaling-stroke"/></svg><p id="lastMaintenance" class="join-note"></p></section>
-        <section class="activity recommended-mods">
-          <p class="eyebrow">RECOMMENDED CLIENT MODS / PALWORLD 1.0</p>
-          <h2>Restore classic Pal movement</h2>
-          <p class="join-note">
-            These are optional client-side mods. Install and enable them in
-            Palworld’s Mod Management menu on every PC that wants the restored
-            behavior; nothing needs to be installed on the dedicated server.
-          </p>
-          <ol>
-            <li>
-              <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3625223587">UE4SS Experimental</a>
-              — required mod loader
-            </li>
-            <li>
-              <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3625280368">PalSchema</a>
-              — required by Glider Restoration
-            </li>
-            <li>
-              <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3625871847">Glider Restoration</a>
-              — restores gliding with Celaray, Galeclaw, Killamari, and other glider Pals
-            </li>
-            <li>
-              <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3762438195">FSS — Full Sphere Summon</a>
-              — restores thrown Pal Sphere summoning, including multiplayer support
-            </li>
+
+        <section class="recommended-mods" aria-labelledby="mods-title">
+          <div class="section-heading compact">
+            <div><p class="kicker">Optional · Client-side only</p><h2 id="mods-title">Recommended mods</h2></div>
+          </div>
+          <p class="mods-intro">Restore classic gliding and Pal Sphere throws on Palworld 1.0. Install these on each player’s PC—nothing goes on the dedicated server.</p>
+          <ol class="mod-list">
+            <li><span>01</span><div><a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3625223587">UE4SS Experimental</a><small>Required mod loader</small></div></li>
+            <li><span>02</span><div><a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3625280368">PalSchema</a><small>Required by Glider Restoration</small></div></li>
+            <li><span>03</span><div><a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3625871847">Glider Restoration</a><small>Glide with Celaray, Galeclaw, Killamari, and more</small></div></li>
+            <li><span>04</span><div><a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3762438195">FSS — Full Sphere Summon</a><small>Restored throws with multiplayer support</small></div></li>
           </ol>
-          <p class="join-note">Compatibility checked July 14, 2026.</p>
+          <p class="fine-print">Compatibility checked July 14, 2026.</p>
         </section>
-      </main>
-      <footer>
-        <span>Position telemetry refreshes every 15 seconds.</span
-        ><span
-          >Map adapted from ARXII-13’s Apache-2.0 Palworld Interactive
-          Map.</span
-        >
-      </footer>
-    </div>
+      </div>
+    </main>
+
+    <footer><span>Live telemetry refreshes every 15 seconds.</span><span>Map adapted from ARXII-13’s Apache-2.0 Palworld Interactive Map.</span></footer>
     <script src="/palworld/app.js"></script>
   </body>
 </html>

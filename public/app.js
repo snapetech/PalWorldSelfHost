@@ -112,7 +112,7 @@ async function refresh() {
     $("#uptime").textContent = duration(data.uptime);
     $("#maintenance").textContent = data.next_maintenance || "—";
     $("#day").textContent = data.day ?? "—";
-    $("#serverName").textContent = data.name || "Palworld server";
+    $("#serverSearchName").textContent = data.name || "Snape.tech Palworld";
     $("#updated").textContent =
       `Signal updated ${new Date(data.generated_at * 1000).toLocaleTimeString()}`;
     drawHistory(data.history);
