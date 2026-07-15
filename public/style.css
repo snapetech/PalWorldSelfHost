@@ -137,7 +137,12 @@ h2 { font-size: clamp(30px, 4vw, 48px); line-height: 1.05; }
 .mod-list small { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.4; }
 .fine-print { min-height: 16px; margin: 18px 0 0; color: #8291a2; font-size: 11px; line-height: 1.5; }
 
-footer { display: flex; justify-content: space-between; gap: 30px; padding: 28px 0 40px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; line-height: 1.5; }
+footer { display: flex; justify-content: space-between; align-items: center; gap: 30px; padding: 28px 0 40px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; line-height: 1.5; }
+.support-links { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 7px; }
+.support-links b { color: var(--blue-dark); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
+.support-links a { padding: 6px 10px; border: 1px solid rgba(22,116,189,.25); border-radius: 999px; color: var(--blue-dark); background: rgba(255,255,255,.72); font-weight: 800; text-decoration: none; }
+.support-links a:last-child { border-color: rgba(245,111,97,.32); color: #a34339; }
+.support-links a:hover, .support-links a:focus-visible { border-color: currentColor; box-shadow: 0 5px 14px rgba(18,64,99,.12); outline: 2px solid var(--cyan); outline-offset: 2px; }
 
 @media (min-width: 1200px) {
   body::before { height: 100%; background: linear-gradient(135deg, #dff5ff 0%, #f7fbff 38%, #edf6fb 100%); }
@@ -207,7 +212,7 @@ footer { display: flex; justify-content: space-between; gap: 30px; padding: 28px
   .section-heading, .map-toolbar { display: block; }.section-heading > p { margin-top: 12px; }.legend { margin-top: 12px; }
   .map-wrap { border-radius: 10px; }.roster { grid-template-columns: 1fr; }
   .lower-grid { margin-top: 14px; gap: 14px; }.activity, .recommended-mods { padding: 25px 20px; border-radius: 16px; }
-  footer { display: block; } footer span { display: block; margin-top: 8px; }
+  footer { display: block; } footer > span { display: block; margin-top: 8px; } footer .support-links { display: flex; justify-content: flex-start; margin: 14px 0; }
 }
 @media (prefers-reduced-motion: no-preference) {
   .hero-copy, .telemetry { animation: rise .55s ease both; }.telemetry { animation-delay: .08s; }

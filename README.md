@@ -5,6 +5,8 @@ the official SteamCMD server, manages it with systemd, performs graceful nightly
 maintenance, creates verified local and rclone backups, and includes private
 operations and public read-only status pages.
 
+Support PalWorldSelfHost development and hosting through [PayPal](https://www.paypal.com/donate/?business=donations%40snape.tech) or [Ko-fi](https://ko-fi.com/snapetech).
+
 ## Features
 
 - Native SteamCMD installation with automatic updates
