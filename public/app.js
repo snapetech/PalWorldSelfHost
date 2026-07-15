@@ -93,6 +93,18 @@ function drawHistory(samples) {
   $("#historyLine").setAttribute("points",points.map(x=>`${(x.timestamp-min)/(max-min||1)*1000},${170-x.players/peak*150}`).join(" "));
 }
 
+function peakToday(samples, currentPlayers, generatedAt) {
+  const generated = new Date(generatedAt * 1000);
+  const start = new Date(generated);
+  start.setHours(0, 0, 0, 0);
+  const counts = (samples || [])
+    .filter((sample) => sample.timestamp >= start.getTime() / 1000 && sample.timestamp <= generatedAt)
+    .map((sample) => sample.players)
+    .filter(Number.isFinite);
+  if (Number.isFinite(currentPlayers)) counts.push(currentPlayers);
+  return counts.length ? Math.max(...counts) : null;
+}
+
 async function refresh() {
   try {
     const response = await fetch("/palworld/status.json", {
@@ -103,6 +115,7 @@ async function refresh() {
     $("#state").textContent = data.online ? "WORLD ONLINE" : "WORLD OFFLINE";
     $("#players").textContent = data.player_count;
     $("#capacity").textContent = `/ ${data.max_players}`;
+    $("#peakToday").textContent = peakToday(data.history, data.player_count, data.generated_at) ?? "—";
     $("#uptime").textContent = duration(data.uptime);
     $("#maintenance").textContent = data.next_maintenance || "—";
     $("#day").textContent = data.day ?? "—";
