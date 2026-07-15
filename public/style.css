@@ -91,12 +91,14 @@ h2 { font-size: clamp(30px, 4vw, 48px); line-height: 1.05; }
 
 .telemetry { display: grid; grid-template-columns: 1fr 1fr; margin: 0; overflow: hidden; border: 1px solid rgba(18,34,58,.12); border-radius: 18px; background: rgba(255,255,255,.78); box-shadow: var(--shadow); backdrop-filter: blur(12px); }
 .telemetry div { min-height: 118px; padding: 22px; border-bottom: 1px solid var(--line); }
-.telemetry div:nth-child(odd) { border-right: 1px solid var(--line); }
-.telemetry div:nth-last-child(-n+2) { border-bottom: 0; }
+.telemetry div:nth-child(odd):not(.maintenance-stat) { border-right: 1px solid var(--line); }
+.telemetry div:last-child { border-bottom: 0; }
 .telemetry dt { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
 .telemetry dd { margin: 13px 0 0; font-size: 22px; font-weight: 750; line-height: 1.25; }
 .telemetry strong { font-family: Georgia, serif; font-size: 44px; font-weight: 600; color: var(--blue); }
 .telemetry dd span { margin-left: 5px; color: #8795a6; font-size: 18px; }
+.peak-stat dd { color: var(--coral); font-family: Georgia, serif; font-size: 36px; font-weight: 600; }
+.maintenance-stat { grid-column: 1 / -1; }
 .maintenance-stat dd { font-size: 15px; line-height: 1.5; }
 
 .map-section { padding: clamp(26px, 4vw, 48px); border-radius: 26px; color: white; background: var(--map); box-shadow: 0 30px 80px rgba(5,35,57,.24); }
