@@ -41,23 +41,21 @@
       </section>
 
       <section class="map-section" aria-labelledby="map-title">
-        <div class="section-heading map-heading">
-          <div>
-            <p class="kicker">Live expedition map</p>
-            <h2 id="map-title">Where everyone is exploring</h2>
-          </div>
-          <p id="updated">Waiting for telemetry…</p>
-        </div>
-
-        <div class="map-toolbar">
-          <div class="legend" aria-label="Map layers">
-            <label><input type="checkbox" data-layer="players" checked /><i class="player-key"></i>Players</label>
-            <label><input type="checkbox" data-layer="fastTravelPoint" /><i class="travel-key"></i>Fast travel</label>
-            <label><input type="checkbox" data-layer="towerTravelPoint" /><i class="tower-key"></i>Towers</label>
-          </div>
-        </div>
-
         <div class="map-wrap">
+          <div class="map-overlay">
+            <div class="map-heading">
+              <p class="kicker">Live expedition map</p>
+              <h2 id="map-title">Where everyone is exploring</h2>
+            </div>
+            <div class="map-tools">
+              <p id="updated">Waiting for telemetry…</p>
+              <div class="legend" aria-label="Map layers">
+                <label><input type="checkbox" data-layer="players" checked /><i class="player-key"></i>Players</label>
+                <label><input type="checkbox" data-layer="fastTravelPoint" /><i class="travel-key"></i>Fast travel</label>
+                <label><input type="checkbox" data-layer="towerTravelPoint" /><i class="tower-key"></i>Towers</label>
+              </div>
+            </div>
+          </div>
           <div id="mapContent" class="map-content">
             <img src="/palworld/palpagos-map.webp" alt="Palpagos Islands world map" width="8192" height="8192" draggable="false" />
             <svg id="map" viewBox="0 0 1000 1000" aria-hidden="true">
