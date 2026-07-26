@@ -128,10 +128,12 @@ h2 { font-size: clamp(30px, 4vw, 48px); line-height: 1.05; }
 .map-content { position: relative; width: 100%; }
 .map-content > img { display: block; width: 100%; height: auto; }
 .map-content > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.marker circle { fill: var(--coral); stroke: white; stroke-width: 4; filter: url(#glow); }
-.marker text { fill: white; font: 700 18px ui-sans-serif, system-ui; paint-order: stroke; stroke: #06263c; stroke-width: 6; }
+.marker circle { fill: var(--coral); stroke: white; stroke-width: 4; vector-effect: non-scaling-stroke; filter: url(#glow); }
+.marker-label rect { fill: rgba(3, 25, 41, .94); stroke: rgba(255, 255, 255, .8); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.marker-label text { fill: white; font: 750 18px/1 ui-sans-serif, system-ui; dominant-baseline: middle; letter-spacing: -.01em; }
 .location { cursor: help; }.location circle { stroke: #061c22; stroke-width: 2; }.location.travel circle { fill: var(--cyan); }.location.tower circle { fill: var(--yellow); }
 .empty { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; text-align: center; text-shadow: 0 2px 12px #031b2b; }
+.empty[hidden] { display: none; }
 .empty b { font: 600 clamp(28px, 4vw, 46px)/1 Georgia, serif; }.empty span { margin-top: 10px; color: #a8c5d4; }
 .roster { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0 0; padding: 0; }
 .roster:empty { display: none; }.roster li { display: flex; justify-content: space-between; padding: 12px 14px; border: 1px solid rgba(190,225,240,.16); border-radius: 8px; background: var(--map); color: #bcd4df; font-size: 12px; }.roster b { color: white; }
@@ -237,7 +239,5 @@ footer { display: flex; justify-content: space-between; align-items: center; gap
 }
 @media (prefers-reduced-motion: no-preference) {
   .hero-copy, .telemetry { animation: rise .55s ease both; }.telemetry { animation-delay: .08s; }
-  .marker { animation: arrive .45s ease both; }
   @keyframes rise { from { opacity: 0; transform: translateY(12px); } }
-  @keyframes arrive { from { opacity: 0; transform: scale(.4); transform-origin: center; } }
 }
