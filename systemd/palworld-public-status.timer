@@ -1,8 +1,7 @@
 [Unit]
 Description=Refresh static Palworld status
 [Timer]
-OnBootSec=30s
-OnUnitActiveSec=15s
+OnCalendar=*-*-* *:*:00/15
 AccuracySec=2s
 Persistent=true
 [Install]

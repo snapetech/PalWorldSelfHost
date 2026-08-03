@@ -41,4 +41,10 @@ class OpsTests(unittest.TestCase):
             self.assertIn(expected, path.read_text(), str(path))
         self.assertNotIn("/var/www/palworld", "\n".join(path.read_text() for path in paths))
 
+    def test_public_status_timer_recovers_after_reboot(self):
+        timer = (ROOT / "systemd/palworld-public-status.timer").read_text()
+        self.assertIn("OnCalendar=*-*-* *:*:00/15", timer)
+        self.assertNotIn("OnBootSec=", timer)
+        self.assertNotIn("OnUnitActiveSec=", timer)
+
 if __name__ == '__main__': unittest.main()
