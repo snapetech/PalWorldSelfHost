@@ -2,7 +2,7 @@
 """Atomically publish sanitized status JSON into the static site directory."""
 import json, os, pathlib, tempfile, urllib.request
 
-target = pathlib.Path(os.environ.get("PALWORLD_PUBLIC_DIR", "/var/www/palworld")) / "status.json"
+target = pathlib.Path(os.environ.get("PALWORLD_PUBLIC_DIR", "/srv/static/palworld")) / "status.json"
 url = f"http://127.0.0.1:{os.environ.get('PALWORLD_OPS_PORT', '8213')}/api/public-status"
 with urllib.request.urlopen(url, timeout=15) as response: data = json.load(response)
 target.parent.mkdir(parents=True, exist_ok=True)

@@ -15,7 +15,7 @@ set +a
 : "${PALWORLD_RCLONE_DEST:?}"
 : "${PALWORLD_USER:=palworld}"
 : "${PALWORLD_GROUP:=palworld}"
-: "${PALWORLD_PUBLIC_DIR:=/var/www/palworld}"
+: "${PALWORLD_PUBLIC_DIR:=/srv/static/palworld}"
 : "${PALWORLD_REQUIRE_LVM_BACKUP:=false}"
 
 [[ -z "${PALWORLD_EXPECTED_HOSTNAME:-}" || "$(hostname)" == "$PALWORLD_EXPECTED_HOSTNAME" ]] || {

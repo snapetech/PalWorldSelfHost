@@ -108,7 +108,7 @@ and never proxies a request to the operations service:
 
 ```caddyfile
 handle_path /palworld/* {
-    root * /var/www/palworld
+    root * /srv/static/palworld
     file_server
 }
 ```

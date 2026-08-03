@@ -35,6 +35,15 @@ jobs:
         env:
           PALWORLD_PUBLIC_DIR: /srv/static/palworld
         run: ./scripts/deploy-public.sh
+      - name: Align and refresh live status publisher
+        env:
+          PALWORLD_PUBLIC_DIR: /srv/static/palworld
+        run: |
+          sudo -n env PALWORLD_PUBLIC_DIR="$PALWORLD_PUBLIC_DIR" bash ./scripts/migrate-public-status-path.sh
+          sudo -n systemctl daemon-reload
+          sudo -n systemctl enable --now palworld-public-status.timer
+          sudo -n systemctl start palworld-public-status.service
+          test -s "$PALWORLD_PUBLIC_DIR/status.json"
       - name: Verify deployed content
         run: |
           test -s /srv/static/palworld/index.html
