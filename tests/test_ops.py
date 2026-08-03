@@ -28,4 +28,17 @@ class OpsTests(unittest.TestCase):
         self.assertIn('/palworld/style.css?v=', page)
         self.assertIn('/palworld/app.js?v=', page)
 
+    def test_public_status_defaults_match_the_live_static_origin(self):
+        expected = "/srv/static/palworld"
+        paths = [
+            ROOT / "config/palworld-server.env.example",
+            ROOT / "scripts/install.sh",
+            ROOT / "scripts/export-public-status.py",
+            ROOT / ".github/workflows/deploy-public.yml",
+            ROOT / "scripts/deploy-public.sh",
+        ]
+        for path in paths:
+            self.assertIn(expected, path.read_text(), str(path))
+        self.assertNotIn("/var/www/palworld", "\n".join(path.read_text() for path in paths))
+
 if __name__ == '__main__': unittest.main()
