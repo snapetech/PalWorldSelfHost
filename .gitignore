@@ -8,3 +8,4 @@ palworld-server.env
 *.sha256
 .idea/
 .vscode/
+third_party/ooz/palworld_decompress
