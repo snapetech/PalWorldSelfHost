@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Plan or execute a guarded single-world restore."""
-import argparse, importlib.util, json, os, pathlib, shutil, subprocess, tarfile, tempfile, time
+import argparse, importlib.util, json, os, pathlib, shutil, subprocess, tempfile, time
 
 here = pathlib.Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location("ops_lib", here / "ops-lib.py")
@@ -31,7 +31,7 @@ with ops.operation_lock():
     subprocess.run(["systemctl", "stop", "palworld.service"], check=True)
     try:
         with tempfile.TemporaryDirectory(dir=os.environ["PALWORLD_BACKUP_LOCAL_ROOT"]) as temporary:
-            subprocess.run(["tar", "--zstd", "-xf", str(archive), "-C", temporary], check=True)
+            subprocess.run([str(here / "verify-backup.py"), str(archive), "--extract-to", temporary], check=True)
             staged = pathlib.Path(temporary) / "Pal/Saved"
             if not any(staged.glob("SaveGames/0/*/Level.sav")): raise RuntimeError("staged backup has no Level.sav")
             destination = install / "Pal/Saved"

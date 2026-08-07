@@ -1,0 +1,16 @@
+[Unit]
+Description=Refresh read-only Palworld save intelligence
+After=palworld.service network-online.target
+
+[Service]
+Type=oneshot
+User=palworld
+Group=palworld
+EnvironmentFile=/etc/palworld-server.env
+ExecStart=/usr/bin/python3 /usr/local/lib/palworld/save-intelligence.py scan
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+PrivateTmp=true
+NoNewPrivileges=true
+

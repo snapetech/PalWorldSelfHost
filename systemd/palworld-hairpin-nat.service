@@ -1,0 +1,14 @@
+[Unit]
+Description=Scoped Palworld LAN hairpin NAT
+After=network-online.target
+Before=palworld.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/palworld-server.env
+ExecStart=/usr/local/lib/palworld/hairpin-nat.py apply
+ExecReload=/usr/local/lib/palworld/hairpin-nat.py apply
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

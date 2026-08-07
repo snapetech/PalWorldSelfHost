@@ -1,8 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
 lib=${PALWORLD_LIB_DIR:-/usr/local/lib/palworld}
-usage(){ echo "usage: palworldctl status|players|save|announce TEXT|backup [tier]|restart|update-check|maintenance|settings ...|restore ...|diagnose|preflight|audit"; }
+locale=${PALWORLD_LOCALE:-}
+if [[ ${1:-} == --locale ]]; then
+    [[ $# -ge 2 ]] || { echo "--locale requires en, zh-Hans, or ja" >&2; exit 2; }
+    locale=$2; shift 2
+fi
+if [[ -z "$locale" ]]; then
+    case ${LC_ALL:-${LC_MESSAGES:-${LANG:-en}}} in zh*) locale=zh-Hans ;; ja*) locale=ja ;; *) locale=en ;; esac
+fi
+[[ "$locale" =~ ^(en|zh-Hans|ja)$ ]] || { echo "unsupported locale: $locale" >&2; exit 2; }
+usage(){
+    case "$locale" in
+        zh-Hans) echo "用法：palworldctl [--locale zh-Hans] 状态|玩家|保存|公告 文本|备份 [级别]|重启|检查更新|维护|设置 ...|构建 ...|版本回滚 ...|恢复 ...|导入世界 ...|Discord验证 ...|诊断|预检|审计" ;;
+        ja) echo "使用法: palworldctl [--locale ja] 状態|プレイヤー|保存|アナウンス テキスト|バックアップ [階層]|再起動|更新確認|メンテナンス|設定 ...|ビルド ...|ビルドロールバック ...|復元 ...|ワールド導入 ...|Discord検証 ...|診断|事前確認|監査" ;;
+        *) echo "usage: palworldctl [--locale en] status|players|save|announce TEXT|backup [tier]|restart|update-check|maintenance|settings ...|builds ...|build-rollback ...|restore ...|import-world ...|discord-validation ...|diagnose|preflight|audit" ;;
+    esac
+}
 cmd=${1:-}; shift || true
+case "$cmd" in
+ 状态|状態) cmd=status ;; 玩家|プレイヤー) cmd=players ;; 保存) cmd=save ;;
+ 公告|アナウンス) cmd=announce ;; 备份|バックアップ) cmd=backup ;; 重启|再起動) cmd=restart ;;
+ 检查更新|更新確認) cmd=update-check ;; 维护|メンテナンス) cmd=maintenance ;; 设置|設定) cmd=settings ;;
+ 构建|ビルド) cmd=builds ;; 版本回滚|ビルドロールバック) cmd=build-rollback ;; 恢复|復元) cmd=restore ;;
+ 导入世界|ワールド導入) cmd=import-world ;; 诊断|診断) cmd=diagnose ;; 预检|事前確認) cmd=preflight ;;
+ Discord验证|Discord検証) cmd=discord-validation ;;
+ 审计|監査) cmd=audit ;; 帮助|ヘルプ|help|-h|--help) cmd=help ;;
+esac
 case "$cmd" in
  status) systemctl status palworld.service --no-pager; "$lib/rest-client.py" info ;;
  players) "$lib/rest-client.py" players ;;
@@ -13,9 +37,14 @@ case "$cmd" in
  update-check) "$lib/update-orchestrator.py" ;;
  maintenance) sudo systemctl start palworld-maintenance.service ;;
  settings) "$lib/settings-manager.py" "$@" ;;
+ builds) if (( $# )); then "$lib/steam-build-manager.py" "$@"; else "$lib/steam-build-manager.py" list; fi ;;
+ build-rollback) sudo -E "$lib/ops-build-rollback.sh" "$@" ;;
  restore) sudo -E "$lib/restore.py" "$@" ;;
+ import-world) sudo "$lib/ops-save-import.sh" "$@" ;;
+ discord-validation) "$lib/ops-discord-validation.sh" "$@" ;;
  diagnose) "$lib/diagnose.py" "$@" ;;
  preflight) "$lib/preflight.py" "$@" ;;
  audit) tail -n "${1:-50}" "${PALWORLD_STATE_DIR:-/var/lib/palworld}/audit.jsonl" ;;
+ help) usage ;;
  *) usage; exit 2;;
 esac

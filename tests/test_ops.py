@@ -15,5 +15,36 @@ class OpsTests(unittest.TestCase):
         items=json.loads((ROOT/'public/locations.json').read_text())
         self.assertGreater(len(items), 50)
         self.assertTrue(all(i['type'] in {'fastTravelPoint','towerTravelPoint'} for i in items))
+    def test_public_player_map_hides_empty_state_and_keeps_refreshes_static(self):
+        script=(ROOT/'public/app.js').read_text()
+        styles=(ROOT/'public/style.css').read_text()
+        self.assertIn('$("#empty").hidden = players.length > 0', script)
+        self.assertIn('.empty[hidden] { display: none; }', styles)
+        self.assertIn('class: "marker-label"', script)
+        self.assertIn('.marker-label rect', styles)
+        self.assertNotIn('.marker { animation:', styles)
+        self.assertNotIn('@keyframes arrive', styles)
+
+    def test_public_status_defaults_match_the_live_static_origin(self):
+        expected = "/srv/static/palworld"
+        paths = [
+            ROOT / "config/palworld-server.env.example",
+            ROOT / "scripts/install.sh",
+            ROOT / "scripts/export-public-status.py",
+            ROOT / "scripts/bootstrap-server.py",
+            ROOT / "bootstrap/static/index.html",
+            ROOT / "admin/ops-server.py",
+            ROOT / ".github/workflows/deploy-public.yml",
+            ROOT / "scripts/deploy-public.sh",
+        ]
+        for path in paths:
+            self.assertIn(expected, path.read_text(), str(path))
+        self.assertNotIn("/var/www/palworld", "\n".join(path.read_text() for path in paths))
+
+    def test_public_status_timer_recovers_after_reboot(self):
+        timer = (ROOT / "systemd/palworld-public-status.timer").read_text()
+        self.assertIn("OnCalendar=*-*-* *:*:00/15", timer)
+        self.assertNotIn("OnBootSec=", timer)
+        self.assertNotIn("OnUnitActiveSec=", timer)
 
 if __name__ == '__main__': unittest.main()

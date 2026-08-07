@@ -6,6 +6,7 @@ After=palworld.service
 Type=simple
 User=palworld
 Group=palworld
+SupplementaryGroups=systemd-journal
 EnvironmentFile=/etc/palworld-server.env
 WorkingDirectory=/usr/local/share/palworld-ops
 ExecStart=/usr/bin/python3 /usr/local/share/palworld-ops/ops-server.py

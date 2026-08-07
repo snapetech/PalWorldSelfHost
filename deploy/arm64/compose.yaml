@@ -1,0 +1,36 @@
+services:
+  palworld:
+    image: docker.io/thijsvanloef/palworld-server-docker:v2.6.0@sha256:85ae20d8756dd398ec24f4253a59b80907e5ffe411148a67b2c80c4527a8855e
+    platform: linux/arm64
+    restart: unless-stopped
+    stop_grace_period: 120s
+    env_file:
+      - ${PALWORLD_ARM64_ENV_FILE:-./palworld.env}
+    environment:
+      PORT: "8211"
+      PUBLIC_PORT: "8211"
+      REST_API_ENABLED: "true"
+      REST_API_PORT: "8212"
+      RCON_ENABLED: "false"
+      UPDATE_ON_BOOT: "true"
+      BACKUP_ENABLED: "true"
+      ARM64_DEVICE: ${ARM64_DEVICE:-generic}
+      BOX64_DYNAREC_STRONGMEM: "3"
+      BOX64_DYNAREC_BIGBLOCK: "0"
+      BOX64_DYNAREC_SAFEFLAGS: "2"
+      BOX64_DYNAREC_FASTROUND: "0"
+      BOX64_DYNAREC_FASTNAN: "0"
+      BOX64_DYNAREC_X87DOUBLE: "1"
+    ports:
+      - "8211:8211/udp"
+    volumes:
+      - palworld-arm64-data:/palworld
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent --user \"admin:$${ADMIN_PASSWORD}\" http://127.0.0.1:8212/v1/api/info >/dev/null"]
+      start_period: 15m
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  palworld-arm64-data:

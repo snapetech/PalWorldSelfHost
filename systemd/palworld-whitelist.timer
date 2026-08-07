@@ -1,0 +1,11 @@
+[Unit]
+Description=Check the Palworld allow-list every 15 seconds
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=15s
+AccuracySec=2s
+Unit=palworld-whitelist.service
+
+[Install]
+WantedBy=timers.target

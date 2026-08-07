@@ -1,0 +1,55 @@
+image:
+  repository: ghcr.io/pocketpairjp/palserver
+  tag: v1.0.1.100619
+  digest: sha256:0d293cafd503a91a6d11d71f7bf770ee0c3c5ecf37db988349b2c1758f4e9358
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+server:
+  port: 8211
+  args:
+    - -useperfthreads
+    - -NoAsyncLoadingThread
+    - -UseMultithreadForDS
+
+settings:
+  # The default deliberately references a Secret that the operator must create.
+  # Its selected key must contain the complete PalWorldSettings.ini file.
+  existingSecret: palworld-settings
+  secretKey: PalWorldSettings.ini
+  # Inline content is supported for disposable labs only; it becomes Helm
+  # release data. Set existingSecret="" to use it.
+  inline: ""
+
+service:
+  type: LoadBalancer
+  annotations: {}
+  loadBalancerIP: ""
+  externalTrafficPolicy: Local
+
+persistence:
+  enabled: true
+  accessModes:
+    - ReadWriteOnce
+  size: 20Gi
+  storageClass: ""
+  existingClaim: ""
+
+resources:
+  requests:
+    cpu: "2"
+    memory: 8Gi
+  limits:
+    cpu: "8"
+    memory: 16Gi
+
+podAnnotations: {}
+podLabels: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+terminationGracePeriodSeconds: 120

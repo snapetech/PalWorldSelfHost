@@ -1,6 +1,5 @@
 [Unit]
 Description=Palworld nightly backup and update maintenance
-Requires=palworld.service
 After=network-online.target
 
 [Service]

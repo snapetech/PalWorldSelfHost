@@ -66,13 +66,29 @@ function drawPlayers(players) {
       Number.isFinite(player.location_y)
     ) {
       const at = position(player.location_x, player.location_y);
+      const rawName = String(player.name || "Explorer").trim() || "Explorer";
+      const nameCharacters = Array.from(rawName);
+      const displayName = nameCharacters.length > 24
+        ? `${nameCharacters.slice(0, 23).join("")}…`
+        : rawName;
+      const labelWidth = Math.min(230, Math.max(72, Array.from(displayName).length * 10.5 + 24));
+      const labelX = at.x > 760 ? -labelWidth - 18 : 18;
       const node = svgNode("g", {
         class: "marker",
         transform: `translate(${at.x} ${at.y})`,
       });
       const dot = svgNode("circle", { r: 10 });
-      const label = svgNode("text", { x: 17, y: 7 });
-      label.textContent = player.name || "Explorer";
+      const label = svgNode("g", { class: "marker-label" });
+      const plate = svgNode("rect", {
+        x: labelX,
+        y: -17,
+        width: labelWidth,
+        height: 34,
+        rx: 8,
+      });
+      const text = svgNode("text", { x: labelX + 12, y: 1 });
+      text.textContent = displayName;
+      label.append(plate, text);
       node.append(dot, label);
       group.appendChild(node);
     }

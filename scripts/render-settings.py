@@ -22,22 +22,33 @@ def main() -> None:
     parser.add_argument("--name", required=True)
     parser.add_argument("--description", required=True)
     parser.add_argument("--port", required=True, type=int)
+    parser.add_argument("--public-ip", default="")
     parser.add_argument("--player-exp", required=True, type=float)
     parser.add_argument("--admin-password", required=True)
     parser.add_argument("--rest-port", required=True, type=int)
+    parser.add_argument("--rcon-enabled", action="store_true")
+    parser.add_argument("--rcon-port", default=25575, type=int)
     parser.add_argument("--overrides", type=Path)
+    parser.add_argument("--raw-base", type=Path)
     args = parser.parse_args()
 
-    text = args.template.read_text()
+    using_raw_base = bool(args.raw_base and args.raw_base.is_file())
+    source = args.raw_base if using_raw_base else args.template
+    text = source.read_text()
     if "OptionSettings=(" not in text:
         raise SystemExit("invalid DefaultPalWorldSettings.ini: OptionSettings is absent")
-    text = replace(text, "DeathPenalty", "None")
-    text = replace(text, "ExpRate", f"{args.player_exp:.6f}")
+    if not using_raw_base:
+        text = replace(text, "DeathPenalty", "None")
+        text = replace(text, "ExpRate", f"{args.player_exp:.6f}")
     text = replace(text, "ServerName", f'"{args.name.replace(chr(34), "")}"')
     text = replace(text, "ServerDescription", f'"{args.description.replace(chr(34), "")}"')
     text = replace(text, "AdminPassword", f'"{args.admin_password.replace(chr(34), "")}"')
     text = replace(text, "PublicPort", str(args.port))
-    text = replace(text, "RCONEnabled", "False")
+    text = replace(text, "PublicIP", f'"{args.public_ip.replace(chr(34), "")}"')
+    if not 1024 <= args.rcon_port <= 65535:
+        raise SystemExit("RCON port must be between 1024 and 65535")
+    text = replace(text, "RCONEnabled", "True" if args.rcon_enabled else "False")
+    text = replace(text, "RCONPort", str(args.rcon_port), required=False)
     text = replace(text, "RESTAPIEnabled", "True", required=False)
     text = replace(text, "RESTAPIPort", str(args.rest_port), required=False)
     if args.overrides and args.overrides.exists():

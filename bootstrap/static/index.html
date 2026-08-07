@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PalWorldSelfHost first run</title>
+  <link rel="stylesheet" href="/bootstrap.css">
+</head>
+<body>
+  <div class="terrain" aria-hidden="true"></div>
+  <main class="handoff">
+    <aside class="route" aria-label="Bootstrap progress">
+      <div class="brand"><span class="brand-mark">P</span><div><b>PalWorldSelfHost</b><small>First-run handoff</small></div></div>
+      <div class="beacon" aria-hidden="true"><i></i><span></span></div>
+      <ol id="routeSteps">
+        <li data-step="unlock" class="active"><span>01</span><div><b>Unlock locally</b><small>Prove terminal access</small></div></li>
+        <li data-step="configure"><span>02</span><div><b>Shape the world</b><small>Choose install or adoption</small></div></li>
+        <li data-step="review"><span>03</span><div><b>Review the route</b><small>Bind an exact plan</small></div></li>
+        <li data-step="install"><span>04</span><div><b>Hand off control</b><small>Install and verify</small></div></li>
+      </ol>
+      <p class="boundary"><b>Local boundary</b>This setup listener accepts loopback traffic only. For another machine, use an SSH tunnel.</p>
+    </aside>
+
+    <section class="workspace">
+      <header>
+        <p class="eyebrow">ONE HOST · ONE WORLD · ONE REVIEWED TRANSACTION</p>
+        <h1>Bring this world under management.</h1>
+        <p>Install a new dedicated server or adopt the exact tree already on disk. Nothing executes until the immutable plan and confirmation phrase agree.</p>
+        <div id="connectionState" class="signal"><i></i><span>Waiting for launch code</span></div>
+      </header>
+
+      <section id="unlockPanel" class="panel stage">
+        <div class="stage-head"><span>Terminal proof</span><h2 tabindex="-1">Enter the code printed beside this server.</h2></div>
+        <p>The code lives only in this one-shot process. It is not placed in a URL, log, cookie, or configuration file.</p>
+        <form id="unlockForm" class="unlock-form">
+          <label><span>Ephemeral launch code</span><input id="launchCode" type="password" autocomplete="off" spellcheck="false" required></label>
+          <button type="submit">Unlock setup</button>
+        </form>
+        <p id="unlockError" class="error" role="alert"></p>
+      </section>
+
+      <section id="configurePanel" class="panel stage" hidden>
+        <div class="stage-head"><span>World origin</span><h2 tabindex="-1">Choose the handoff path.</h2></div>
+        <div class="mode-switch" role="radiogroup" aria-label="Installation mode">
+          <label><input type="radio" name="mode" value="fresh" checked><span><b>New server</b><small>Install official game files with SteamCMD</small></span></label>
+          <label><input type="radio" name="mode" value="adopt"><span><b>Existing server</b><small>Fingerprint and adopt without reinstalling</small></span></label>
+        </div>
+        <form id="configForm">
+          <fieldset>
+            <legend>Identity</legend>
+            <label class="wide"><span>Server name</span><input name="server_name" maxlength="80" value="Palworld community" required></label>
+            <label class="wide"><span>Description</span><input name="server_description" maxlength="200" value="Managed by PalWorldSelfHost"></label>
+            <label><span>Player XP rate</span><input name="player_exp_rate" type="number" min="0.1" max="20" step="0.1" value="1.0" required></label>
+            <label><span>Public IPv4 <em>optional</em></span><input name="public_ip" inputmode="decimal" placeholder="203.0.113.10"></label>
+          </fieldset>
+          <fieldset>
+            <legend>Managed paths</legend>
+            <label class="wide"><span>Game install directory</span><input name="install_dir" value="/srv/palworld/server" required></label>
+            <label><span>Toolkit state</span><input name="state_dir" value="/var/lib/palworld" required></label>
+            <label><span>Local backups</span><input name="backup_root" value="/var/backups/palworld" required></label>
+            <label><span>Public status assets</span><input name="public_dir" value="/srv/static/palworld" required></label>
+            <label><span>SteamCMD executable</span><input name="steamcmd" value="/usr/local/bin/steamcmd" required></label>
+          </fieldset>
+          <fieldset>
+            <legend>Off-host continuity</legend>
+            <label class="wide"><span>rclone destination</span><input name="rclone_dest" placeholder="remote:game-servers/palworld" required></label>
+            <label class="wide"><span>rclone configuration</span><input name="rclone_config" value="/var/lib/palworld/.config/rclone/rclone.conf" required></label>
+          </fieldset>
+          <details>
+            <summary>Ports and bind address</summary>
+            <div class="detail-grid">
+              <label><span>Game UDP</span><input name="game_port" type="number" value="8211" min="1024" max="65535"></label>
+              <label><span>Private REST</span><input name="rest_port" type="number" value="8212" min="1024" max="65535"></label>
+              <label><span>Operations UI</span><input name="ops_port" type="number" value="8213" min="1024" max="65535"></label>
+              <label><span>Private RCON</span><input name="rcon_port" type="number" value="25575" min="1024" max="65535"></label>
+              <label class="wide"><span>Game bind IPv4 <em>optional</em></span><input name="bind_ip" inputmode="decimal" placeholder="192.0.2.20"></label>
+            </div>
+          </details>
+          <div class="action-row"><p>Planning reads host prerequisites and, for adoption, hashes critical files and inventories worlds.</p><button type="submit">Build review plan</button></div>
+        </form>
+        <p id="configError" class="error" role="alert"></p>
+      </section>
+
+      <section id="reviewPanel" class="panel stage" hidden>
+        <div class="stage-head"><span>Bound transaction</span><h2 tabindex="-1">Review what will change.</h2></div>
+        <div id="planSummary" class="plan-summary"></div>
+        <section class="credentials">
+          <div><p class="label">Credentials</p><h3>Save both values before installation.</h3><p>They are generated in this browser, sent only with execution, and never returned by the bootstrap API.</p></div>
+          <label><span>Game administrator password</span><div><input id="adminPassword" type="password" autocomplete="new-password"><button type="button" data-copy="adminPassword">Copy</button></div></label>
+          <label><span>Operations administrator token</span><div><input id="opsToken" type="password" autocomplete="new-password"><button type="button" data-copy="opsToken">Copy</button></div></label>
+          <button id="regenerateSecrets" type="button" class="quiet">Generate new values</button>
+        </section>
+        <form id="executeForm" class="execute-form">
+          <label><span>Exact confirmation</span><input id="confirmation" autocomplete="off" spellcheck="false" required><small id="confirmationHint"></small></label>
+          <button id="executeButton" type="submit" class="commit">Install reviewed plan</button>
+        </form>
+        <button id="editPlan" type="button" class="text-button">← Change configuration</button>
+        <p id="executeError" class="error" role="alert"></p>
+      </section>
+
+      <section id="installPanel" class="panel stage" hidden>
+        <div class="stage-head"><span>System handoff</span><h2 id="installHeading" tabindex="-1">Installation is running.</h2></div>
+        <div class="install-meter" aria-hidden="true"><i id="installMeter"></i></div>
+        <p id="installMessage">Keep this tab open. The game download can take time; progress below is bounded to the latest output.</p>
+        <pre id="installLog" tabindex="0">Waiting for installer output…</pre>
+        <div id="completion" class="completion" hidden>
+          <b>Management is active.</b>
+          <p>Save the credentials, close this one-shot page, stop the bootstrap process with Ctrl+C, then open the private operations console through its loopback port.</p>
+        </div>
+        <button id="retryInstall" type="button" hidden>Retry the same reviewed plan</button>
+        <p id="installError" class="error" role="alert"></p>
+      </section>
+    </section>
+  </main>
+  <script src="/bootstrap.js"></script>
+</body>
+</html>

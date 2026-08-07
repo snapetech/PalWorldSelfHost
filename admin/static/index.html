@@ -1,12 +1,187 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Palworld operations</title><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/enhancements.css"></head><body><div class="shell">
-<header><div><p class="kicker">PALWORLD / SINGLE WORLD CONTROL</p><h1>World operations</h1></div><div id="seal" class="seal">CONTACTING WORLD</div></header>
-<section class="auth"><input id="token" type="password" placeholder="Operator token"><button id="connect">Unlock controls</button><span id="result"></span></section>
-<main class="grid">
-<article class="hero"><p class="label">World state</p><strong id="players">—</strong><span>players online</span><dl><div><dt>Capacity</dt><dd id="capacity">—</dd></div><div><dt>Uptime</dt><dd id="uptime">—</dd></div><div><dt>World day</dt><dd id="day">—</dd></div><div><dt>Build</dt><dd id="build">—</dd></div></dl></article>
-<article><p class="label">Continuity</p><h2 id="backup">No backup found</h2><p id="backupMeta" class="muted"></p><div class="meter"><i id="disk"></i></div><p id="maintenance" class="micro"></p><p id="health" class="micro"></p></article>
-<article><p class="label">Actions</p><h2>Guarded controls</h2><div class="buttons"><button data-action="save">Save</button><button data-action="backup">Backup</button><button data-action="restart" class="danger">Graceful restart</button></div><form id="announce"><input name="message" required placeholder="Announcement"><button>Send</button></form></article>
-<article class="wide"><p class="label">Players & moderation</p><div id="roster" class="roster"><p class="muted">No players online.</p></div></article>
-<article class="wide"><p class="label">Typed settings</p><p class="muted">Plan changes before applying. A restart may be required.</p><div id="settings" class="settings"></div><div class="buttons"><button id="planSettings">Plan</button><button id="applySettings" class="danger">Apply confirmed plan</button></div><pre id="settingsResult"></pre></article>
-<article><p class="label">Scheduled work</p><form id="job"><select name="type"><option value="announcement">Announcement</option><option value="restart">Maintenance restart</option></select><input name="due_at" type="datetime-local" required><input name="message" placeholder="Message"><button>Create job</button></form><div id="jobs"></div></article>
-<article><p class="label">Recent audit</p><div id="audit" class="feed muted">Unlock to view.</div></article>
-</main><footer><span>Private control plane</span><span id="updated">Never updated</span></footer></div><script src="/app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Palworld operations</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/enhancements.css">
+</head>
+<body>
+<div class="shell">
+  <header id="overview">
+    <div><p class="kicker">PALWORLD / SINGLE WORLD CONTROL</p><h1>World operations</h1></div>
+    <div class="identity"><span id="role" class="role">LOCKED</span><div id="seal" class="seal">CONTROL PLANE LOCKED</div></div>
+  </header>
+
+  <section class="auth" aria-label="Operator authentication">
+    <label class="locale-picker"><span class="sr-only">Language</span><select id="locale" aria-label="Language"><option value="en">English</option><option value="zh-Hans">简体中文</option><option value="ja">日本語</option></select></label>
+    <input id="token" type="password" autocomplete="current-password" placeholder="Operator, moderator, or viewer token">
+    <button id="connect">Start private session</button>
+    <button id="pair">Use one-time pair code</button>
+    <button id="logout" class="quiet" hidden>End session</button>
+    <span id="result" aria-live="polite"></span>
+  </section>
+
+  <nav class="signal-rail" aria-label="Operational channels">
+    <a href="#overview"><i></i>Overview</a>
+    <a href="#players-panel"><i></i>Players</a>
+    <a href="#backups-panel"><i></i>Continuity</a>
+    <a href="#telemetry-panel"><i></i>Telemetry</a>
+    <a href="#diagnostics-panel"><i></i>Diagnostics</a>
+    <a href="#logs-panel"><i></i>Logs</a>
+    <a href="#settings-panel"><i></i>Settings</a>
+    <a href="#mods-panel"><i></i>Mods</a>
+    <a href="#files-panel"><i></i>Files</a>
+    <a href="#rcon-panel"><i></i>Console</a>
+  </nav>
+
+  <main class="grid">
+    <article class="hero">
+      <p class="label">World state</p>
+      <strong id="players">—</strong><span>players online</span>
+      <dl>
+        <div><dt>Capacity</dt><dd id="capacity">—</dd></div>
+        <div><dt>Uptime</dt><dd id="uptime">—</dd></div>
+        <div><dt>World day</dt><dd id="day">—</dd></div>
+        <div><dt>Build</dt><dd id="build">—</dd></div>
+      </dl>
+    </article>
+
+    <article>
+      <p class="label">Continuity</p><h2 id="backup">No backup found</h2>
+      <p id="backupMeta" class="muted"></p><div class="meter"><i id="disk"></i></div>
+      <p id="maintenance" class="micro"></p><p id="health" class="micro"></p>
+    </article>
+
+    <article>
+      <p class="label">Actions</p><h2>Guarded controls</h2>
+      <div class="buttons" data-admin><button data-action="start">Start / resume</button><button data-action="save">Save</button><button data-action="backup">Backup</button><button data-action="restart" class="danger">Graceful restart</button><button data-action="stop" class="danger">Graceful stop</button></div>
+      <form id="announce" data-moderator><input name="message" required maxlength="500" placeholder="Announcement"><button>Send announcement</button></form>
+      <p class="muted" id="actionRoleHint">Moderator role can announce and moderate players. Administrator role also controls lifecycle and backups.</p>
+    </article>
+
+    <article id="players-panel" class="wide">
+      <div class="section-head"><div><p class="label">Players & moderation</p><h2>Live roster</h2></div><div class="inline-controls"><input id="playerHistorySearch" maxlength="80" placeholder="Search player history"><button id="loadPlayerHistory">Player history</button></div></div><div id="roster" class="roster"><p class="muted">Unlock the console to load players.</p></div><div id="playerHistory" class="data-list"></div>
+      <section class="save-intelligence">
+        <div class="section-head"><div><p class="label">Read-only save intelligence</p><h2>Offline profiles, guilds & world layers</h2></div><div class="inline-controls"><input id="palSearch" maxlength="80" placeholder="Search owner, Pal or work"><button id="refreshSaveIntelligence">Refresh view</button><button id="scanSaveIntelligence" data-admin>Scan current save</button></div></div>
+        <p class="muted">A source-pinned external parser reads a temporary save copy. Parser drift is explicit; this workflow never writes a Palworld save.</p>
+        <div id="saveIntelligenceStatus" class="stat-strip"></div>
+        <p id="gameDataStatus" class="micro"></p>
+        <div class="save-layout">
+          <div><h3>Offline profiles</h3><div id="offlineProfiles" class="save-list"></div></div>
+          <div><h3>Guilds & bases</h3><div id="saveGuilds" class="save-list"></div></div>
+        </div>
+        <div class="save-map-panel"><div><h3>World coordinate layers</h3><p id="saveMapLegend" class="micro"></p></div><svg id="saveMap" viewBox="0 0 1000 520" role="img" aria-label="Player, base, structure, and point-of-interest coordinates"><rect x="1" y="1" width="998" height="518" class="save-map-frame"></rect><g id="saveMapPoints"></g></svg><div class="inline-controls"><p id="coordinatePick" class="micro">Click the coordinate field to place a planning pin.</p><button id="copyMapCoordinate" disabled>Copy picked coordinates</button></div></div>
+        <section class="player-actions" data-admin><div class="section-head"><div><p class="label">Discovered mod capability</p><h3>Typed player actions</h3></div><p id="playerActionStatus" class="micro">Checking PalDefender commands.</p></div><p class="muted">Actions stay disabled unless the running plugin advertises the exact command. Plan hashes the typed target, when applicable, and all parameters; execution requires the action-specific confirmation.</p><form id="playerActionForm"><div class="settings-grid"><label><span>Action</span><select id="playerActionType"><option value="teleport">Teleport player</option><option value="spawn_pal">Spawn wild Pal</option><option value="grant_item">Grant item</option><option value="grant_pal">Grant Pal</option><option value="grant_status">Grant status points</option></select></label><label class="player-action-target"><span>Target platform identity</span><input id="playerActionTarget" required maxlength="128" placeholder="Player platform identity"></label><label class="player-action-coordinate"><span>X coordinate</span><input id="playerActionX" type="number" step="any"></label><label class="player-action-coordinate"><span>Y coordinate</span><input id="playerActionY" type="number" step="any"></label><label class="player-action-coordinate"><span>Z coordinate</span><input id="playerActionZ" type="number" step="any" value="0"></label><label class="player-action-asset"><span>Item or Pal ID</span><input id="playerActionAsset" maxlength="80" placeholder="Internal item or Pal ID"></label><label class="player-action-amount"><span>Amount, level, or points</span><input id="playerActionAmount" type="number" min="1" max="9999" value="1"></label></div><div class="buttons"><button id="planPlayerAction" type="button" disabled>Plan typed action</button><button id="executePlayerAction" type="button" class="danger" disabled>Execute reviewed action</button></div><pre id="playerActionPlan" hidden></pre></form></section>
+        <section class="player-actions" data-admin><div class="section-head"><div><p class="label">Protected offline mutation</p><h3>Save repair & identity migration</h3></div><p id="saveRepairStatus" class="micro">No offline repair plan has been reviewed.</p></div><p class="muted">The plan binds every save byte, installed build, schema and parser hash. Apply requires zero players, a verified protected backup and stopped-world staging; failed startup restores the untouched world automatically. Existing-identity replacement requires a disposable joined target. Cross-world transfer reads a sibling source world without changing it and replaces a disposable joined target with the source player's progression, inventory, party and Palbox while retaining the target guild. Bounded offline editors update exact inventory/currency slots, player level/experience, and owned-Pal nickname, level, rank, talents and passives. Duplicate cleanup keeps only the player-save and guild-backed instance. Save-graph cleanup repairs dangling character/item slots and removes globally unreferenced records. Inactive cleanup removes profiles, owned Pals, empty guilds and newly orphaned containers. When an empty guild owns bases, it also deletes a closed, reverse-reference-verified graph of bases, workers, work records, connected structures, item containers, dynamic items and spawners; retained members or shared/unknown ownership fail closed.</p><form id="saveRepairForm"><div class="settings-grid"><label><span>Action</span><select id="saveRepairAction"><option value="rename_player">Rename player</option><option value="migrate_player">Migrate player UID</option><option value="replace_player">Replace joined identity</option><option value="transfer_player">Transfer player across worlds</option><option value="edit_inventory_slot">Edit inventory or currency slot</option><option value="edit_player_progression">Edit player progression</option><option value="edit_owned_pal">Edit owned Pal</option><option value="cleanup_duplicates">Clean duplicate player records</option><option value="cleanup_graph">Repair broken & unreferenced graph</option><option value="delete_inactive_players">Delete safe inactive profiles</option></select></label><label class="save-repair-world" hidden><span>Source world ID</span><input id="saveRepairWorld" maxlength="32" pattern="[0-9A-Fa-f]{32}" placeholder="32-hex sibling world ID"></label><label class="save-repair-source"><span>Source player UID</span><input id="saveRepairSource" required maxlength="36" pattern="[0-9A-Fa-f-]{32,36}" placeholder="32-hex player UID"></label><label class="save-repair-name"><span>New player name</span><input id="saveRepairName" maxlength="24" placeholder="New player name"></label><label class="save-repair-target" hidden><span>Target player UID</span><input id="saveRepairTarget" maxlength="36" pattern="[0-9A-Fa-f-]{32,36}" placeholder="Target 32-hex player UID"></label><label class="save-repair-days" hidden><span>Inactive for more than days</span><input id="saveRepairDays" type="number" min="1" max="3650" step="1" value="90"></label><label class="save-repair-inventory" hidden><span>Inventory area</span><select id="saveRepairInventoryArea"><option value="common">Common inventory</option><option value="drop">Drop slots</option><option value="essential">Key items</option><option value="food">Food equipment</option><option value="armor">Armor equipment</option><option value="weapons">Weapon loadout</option></select></label><label class="save-repair-inventory" hidden><span>Slot index</span><input id="saveRepairSlot" type="number" min="0" max="999" step="1"></label><label class="save-repair-inventory" hidden><span>Internal item ID</span><input id="saveRepairItem" maxlength="128" pattern="[A-Za-z0-9_:-]{1,128}" placeholder="Money, Wood, or None"></label><label class="save-repair-inventory" hidden><span>Stack count</span><input id="saveRepairStack" type="number" min="0" max="999999" step="1"></label><label class="save-repair-character-level" hidden><span>Level</span><input id="saveRepairLevel" type="number" min="1" max="65" step="1" placeholder="Leave blank unchanged"></label><label class="save-repair-progress" hidden><span>Experience</span><input id="saveRepairExperience" type="number" min="0" step="1" placeholder="Leave blank unchanged"></label><label class="save-repair-pal" hidden><span>Pal instance ID</span><input id="saveRepairPalInstance" maxlength="36" pattern="[0-9A-Fa-f-]{32,36}" placeholder="Owned Pal 32-hex instance ID"></label><label class="save-repair-pal" hidden><span>Pal nickname</span><input id="saveRepairPalNickname" maxlength="24" placeholder="Leave blank unchanged"></label><label class="save-repair-pal" hidden><span>Condensation rank</span><input id="saveRepairPalRank" type="number" min="1" max="5" step="1" placeholder="Leave blank unchanged"></label><label class="save-repair-pal" hidden><span>HP talent</span><input id="saveRepairTalentHp" type="number" min="0" max="100" step="1" placeholder="Leave blank unchanged"></label><label class="save-repair-pal" hidden><span>Attack talent</span><input id="saveRepairTalentAttack" type="number" min="0" max="100" step="1" placeholder="Leave blank unchanged"></label><label class="save-repair-pal" hidden><span>Defense talent</span><input id="saveRepairTalentDefense" type="number" min="0" max="100" step="1" placeholder="Leave blank unchanged"></label><label class="save-repair-pal" hidden><span>Passive skill IDs</span><input id="saveRepairPassives" maxlength="515" placeholder="Comma-separated; NONE clears; blank keeps"></label></div><div class="buttons"><button id="diagnoseSaveRepair" type="button">Diagnose save</button><button id="planSaveRepair" type="button">Plan offline mutation</button><button id="applySaveRepair" type="button" class="danger" disabled>Apply reviewed mutation</button></div><pre id="saveRepairResult" hidden></pre></form></section>
+      </section>
+    </article>
+
+    <article id="backups-panel" class="wide">
+      <div class="section-head"><div><p class="label">Continuity archive</p><h2>Verified restore points</h2></div><button id="refreshBackups">Refresh backups</button></div>
+      <p class="muted">Downloads require the administrator role. Quarantine is reversible on the host and never deletes an archive directly.</p>
+      <div id="backupList" class="data-list"><p class="muted">Unlock the console to inspect backups.</p></div>
+      <pre id="restorePlan" class="restore-plan" hidden></pre>
+    </article>
+
+    <article id="telemetry-panel" class="wide telemetry">
+      <div class="section-head"><div><p class="label">Retained telemetry</p><h2>World pulse</h2></div><div class="inline-controls"><select id="telemetryHours" aria-label="Telemetry time range"><option value="6">6 hours</option><option value="24" selected>24 hours</option><option value="168">7 days</option><option value="720">30 days</option><option value="2160">90 days</option></select><button id="refreshTelemetry">Refresh telemetry</button></div></div>
+      <div class="metric-grid">
+        <section><p>Server FPS <b id="fpsNow">—</b></p><svg viewBox="0 0 1000 180" role="img" aria-label="Server FPS history"><line x1="0" y1="160" x2="1000" y2="160" class="axis"></line><polyline id="fpsLine" class="fps-line" points=""></polyline></svg></section>
+        <section><p>Frame time <b id="frameNow">—</b></p><svg viewBox="0 0 1000 180" role="img" aria-label="Frame-time history"><line x1="0" y1="160" x2="1000" y2="160" class="axis"></line><polyline id="frameLine" class="frame-line" points=""></polyline></svg></section>
+        <section><p>Online players <b id="playersNow">—</b></p><svg viewBox="0 0 1000 180" role="img" aria-label="Online-player history"><line x1="0" y1="160" x2="1000" y2="160" class="axis"></line><polyline id="playerLine" class="player-line" points=""></polyline></svg></section>
+        <section><p>Server RSS <b id="rssNow">—</b></p><svg viewBox="0 0 1000 180" role="img" aria-label="Server-memory history"><line x1="0" y1="160" x2="1000" y2="160" class="axis"></line><polyline id="rssLine" class="rss-line" points=""></polyline></svg></section>
+      </div>
+      <div id="telemetrySummary" class="stat-strip"></div>
+    </article>
+
+    <article id="diagnostics-panel" class="wide">
+      <div class="section-head"><div><p class="label">Channel diagnostics</p><h2>Host and world readiness</h2></div><div class="inline-controls"><button id="checkExposure" data-admin>Check exposure now</button><button id="checkConfig" data-admin>Check configuration</button><a class="button" data-admin href="/api/v1/diagnostics/bundle">Download redacted support bundle</a></div></div>
+      <p class="muted">Signals are private and identifier-redacted. The support bundle is generated on demand, streamed to administrators, then removed from the host.</p>
+      <div id="diagnostics" class="diagnostic-grid"><p class="muted">Unlock the console to inspect channels.</p></div>
+      <div id="configHealth" class="data-list" data-admin></div>
+      <div class="update-control" data-admin><div class="section-head"><div><p class="label">Steam lifecycle</p><h2>Reviewed game update & rollback</h2></div><div class="inline-controls"><button id="checkUpdate">Check Steam</button><button id="planUpdate">Plan available update</button><button id="loadBuilds">Build snapshots</button></div></div><pre id="updatePlan" hidden></pre><div id="buildList" class="data-list"></div></div>
+    </article>
+
+    <article id="logs-panel" class="wide">
+      <div class="section-head"><div><p class="label">Live bounded journal</p><h2>Service logs</h2></div><div class="inline-controls"><select id="logUnit"><option>palworld.service</option><option>palworld-ops.service</option><option>palworld-maintenance.service</option><option>palworld-health.service</option><option>palworld-update-check.service</option><option>palworld-save-intelligence.service</option><option>palworld-backup-hourly.service</option><option>palworld-backup-weekly.service</option></select><select id="logSince" aria-label="Log time range"><option value="15">15 minutes</option><option value="60" selected>1 hour</option><option value="360">6 hours</option><option value="1440">24 hours</option><option value="10080">7 days</option></select><select id="logLines" aria-label="Maximum log lines"><option value="100">100 lines</option><option value="200" selected>200 lines</option><option value="500">500 lines</option><option value="1000">1000 lines</option></select><input id="logFilter" maxlength="80" placeholder="Literal filter" aria-label="Filter log lines"><label class="live-toggle"><input id="logLive" type="checkbox" checked>Live · 5s</label><button id="refreshLogs">Refresh now</button></div></div>
+      <p class="muted">The API redacts addresses, platform identifiers, and credential-like values before returning journal text.</p>
+      <pre id="logs" class="terminal">Unlock the console to load logs.</pre>
+    </article>
+
+    <article id="files-panel" class="wide" data-admin>
+      <div class="section-head"><div><p class="label">Constrained server files</p><h2>Browse, edit, upload & quarantine</h2></div><div class="inline-controls"><select id="fileRoot"><option value="config">Configuration</option><option value="mods">Pak mods</option><option value="logs">Logs · read only</option></select><input id="filePath" maxlength="500" value="." aria-label="Relative file path"><button id="browseFiles">Browse</button></div></div>
+      <p class="muted">Paths stay inside explicit roots; symlinks and parent traversal are refused. Text is capped at 1 MiB and uploads at 64 MiB. Replaced files are preserved and removal is reversible quarantine. File changes never restart the world automatically.</p>
+      <div class="save-layout"><div><h3>Directory</h3><div id="fileList" class="data-list"></div></div><div><h3>UTF-8 editor</h3><textarea id="fileEditor" spellcheck="false" aria-label="Selected text file" placeholder="Select an allowlisted text file"></textarea><div class="buttons"><button id="saveFileText">Upload reviewed text</button><button id="quarantineFile" class="danger">Quarantine selected file</button></div></div></div>
+      <form id="fileUpload"><input id="uploadPath" maxlength="500" required placeholder="Relative destination, e.g. LogicMods/example.pak"><input id="uploadFile" type="file" required><button>Upload reviewed file</button></form>
+    </article>
+
+    <article id="mods-panel" class="wide" data-admin>
+      <div class="section-head"><div><p class="label">Installed mod configuration</p><h2>PalDefender settings & Lua state</h2></div><div class="inline-controls"><select id="modConfigCategory" aria-label="Mod setting category"><option value="">All mod categories</option></select><input id="modConfigSearch" maxlength="80" placeholder="Search mod settings" aria-label="Filter mod settings"><button id="refreshModConfig">Refresh mods</button></div></div>
+      <section><div class="section-head"><div><h3>Loader lifecycle</h3><p class="muted">PalDefender and UE4SS DLLs require the opt-in Windows-under-Wine runtime. Install, update, remove and rollback use reviewed release hashes, require a stopped world and preserve saves, generated PalDefender data, UE4SS settings and Lua mods.</p></div></div><div id="modLifecycleState" class="settings-state"></div><div id="modLifecycleList" class="data-list"></div><div id="modLifecycleExecute" class="buttons"></div><pre id="modLifecycleResult"></pre></section>
+      <p class="muted">Only documented scalar PalDefender keys are shown. IP lists, bans, filters, tokens and unknown future keys never enter this form and are preserved value-for-value during a merge. Apply is bound to the reviewed file hash, takes a private snapshot and never restarts the world automatically.</p>
+      <div id="modConfigState" class="settings-state"></div>
+      <div id="modConfig" class="settings"></div>
+      <label class="stacked-field"><b>Message of the day</b><small>One message per line · maximum 30 lines and 500 characters each</small><textarea id="modConfigMotd" maxlength="15029" spellcheck="true" aria-label="PalDefender message of the day"></textarea></label>
+      <div class="buttons"><button id="planModConfig">Plan mod changes</button><button id="applyModConfig" class="danger">Apply confirmed mod plan</button><button id="rollbackModConfig">Roll back mod configuration</button></div>
+      <pre id="modConfigResult"></pre>
+      <section><div class="section-head"><div><h3>UE4SS Lua mods</h3><p class="muted">Enable state is written to the installed loader's bounded mods.txt. A separate explicit world restart or supported loader reload is still required.</p></div></div><div id="luaModList" class="data-list"></div></section>
+    </article>
+
+    <article id="settings-panel" class="wide" data-admin>
+      <div class="section-head"><div><p class="label">Typed settings</p><h2>Plan before apply</h2></div><div class="inline-controls"><select id="settingsPreset" aria-label="Settings preset"><option value="">Choose preset</option></select><button id="applyPreset">Load preset</button><select id="settingsCategory" aria-label="Settings category"><option value="">All categories</option></select><input id="settingsSearch" class="search" placeholder="Search name or guidance" aria-label="Filter settings"></div></div>
+      <p class="muted">Ranges are operator guidance, not hidden clamps. Presets only stage values: review the changed fields and plan before applying.</p>
+      <div id="settingsState" class="settings-state"></div>
+      <div id="settings" class="settings"></div>
+      <div class="buttons"><button id="planSettings">Plan changes</button><button id="applySettings" class="danger">Apply confirmed plan</button><button id="rollbackSettings">Roll back typed settings</button></div><pre id="settingsResult"></pre>
+      <details class="raw-settings">
+        <summary>Guarded raw INI · preserves unknown fields and comments</summary>
+        <p class="muted">Managed network, identity, and credential fields cannot be changed here. Secret values are represented by a placeholder and restored server-side. Raw changes are capped at 48 KiB, diffed with secrets redacted, atomically rendered, and rolled back on failure.</p>
+        <textarea id="rawSettings" spellcheck="false" aria-label="Raw PalWorldSettings.ini"></textarea>
+        <div class="buttons"><button id="planRawSettings">Plan raw diff</button><button id="applyRawSettings" class="danger">Apply raw settings</button><button id="rollbackRawSettings">Roll back raw settings</button></div>
+        <pre id="rawSettingsResult"></pre>
+      </details>
+    </article>
+
+    <article id="server-config-panel" class="wide" data-admin>
+      <div class="section-head"><div><p class="label">Engine & process configuration</p><h2>Authoritative tuning that survives restart</h2></div><div class="inline-controls"><select id="serverConfigPreset" aria-label="Engine tuning preset"><option value="">Choose Engine preset</option></select><button id="loadServerConfigPreset">Stage preset</button></div></div>
+      <p class="muted">Typed Engine.ini ranges and dedicated-server launch arguments are validated and re-rendered before every start. Review the generated INI and argument list before applying; all changes require a restart.</p>
+      <div id="serverConfigState" class="settings-state"></div>
+      <div id="serverConfig" class="settings"></div>
+      <div class="buttons"><button id="planServerConfig">Plan Engine and launch changes</button><button id="applyServerConfig" class="danger">Apply confirmed plan</button><button id="rollbackServerConfig">Roll back Engine and launch config</button></div><pre id="serverConfigResult"></pre>
+      <details class="raw-settings">
+        <summary>Guarded raw Engine.ini · managed values remain authoritative</summary>
+        <p class="muted">Comments, plugin sections, and unknown options are preserved. Typed fields are overlaid on this source at render time, including after Palworld rewrites Engine.ini.</p>
+        <textarea id="rawEngine" spellcheck="false" aria-label="Raw Engine.ini"></textarea>
+        <div class="buttons"><button id="planRawEngine">Plan Engine.ini diff</button><button id="applyRawEngine" class="danger">Apply raw Engine.ini</button><button id="rollbackRawEngine">Roll back raw Engine.ini</button></div>
+        <pre id="rawEngineResult"></pre>
+      </details>
+    </article>
+
+    <article id="rcon-panel" class="wide" data-admin>
+      <div class="section-head"><div><p class="label">Private administration channel</p><h2>RCON console & enforced allow-list</h2></div><div class="inline-controls"><button id="refreshRcon">Refresh channel</button><button id="toggleRcon" class="danger">Enable private RCON</button></div></div>
+      <p class="muted">RCON is accepted only through the host loopback firewall boundary. Every command requires confirmation and is retained with actor, result, and bounded output; the administrator password never enters command history.</p>
+      <div id="rconStatus" class="stat-strip"></div>
+      <div class="console-layout">
+        <section><h3>Command console</h3><form id="rconExec"><select id="rconCatalog" aria-label="Official command catalog"><option value="">Choose official command</option></select><input id="rconCommand" maxlength="512" required placeholder="Info"><button>Execute</button></form><form id="rconSave"><input id="rconSaveName" maxlength="80" required placeholder="Saved command name"><button>Save current command</button></form><div id="rconSaved" class="data-list"></div></section>
+        <section><h3>Bounded command history</h3><pre id="rconHistory" class="terminal">RCON channel has not been loaded.</pre></section>
+      </div>
+      <section class="whitelist-panel"><div class="section-head"><div><h3>Enforced player allow-list</h3><p class="muted">The list is identity-based. Enabling it starts with a 60-second grace period, then checks the live roster every 15 seconds and disconnects identities not listed.</p></div><div class="inline-controls"><button id="applyWhitelist">Replace reviewed list</button><button id="toggleWhitelist" class="danger">Enable whitelist</button></div></div><form id="whitelistAdd"><input id="whitelistIdentity" maxlength="128" required placeholder="Platform user identity"><input id="whitelistName" maxlength="80" placeholder="Operator label"><button>Add to staged list</button></form><div id="whitelistState" class="data-list"></div></section>
+    </article>
+
+    <article data-admin>
+      <p class="label">Scheduled work</p>
+      <p class="muted">Timed events apply a reviewed world-settings preset, restart the world, and automatically restore only the affected settings after the selected duration. Cancelling an active event schedules immediate restoration.</p>
+      <form id="job"><select name="type"><option value="announcement">Announcement</option><option value="restart">Maintenance restart</option><option value="settings_event">Timed settings event</option><option value="rcon">RCON command</option></select><select name="preset" aria-label="Timed event preset"><option value="double_xp">Double XP</option><option value="resource_rush">Resource rush</option><option value="capture_weekend">Capture weekend</option></select><select name="duration_seconds" aria-label="Timed event duration"><option value="3600">1 hour</option><option value="21600">6 hours</option><option value="86400" selected>24 hours</option><option value="259200">3 days</option><option value="604800">7 days</option></select><input name="due_at" type="datetime-local" required><input name="message" maxlength="500" placeholder="Message or direct RCON command"><select name="saved_id" id="jobSavedCommand" aria-label="Saved RCON command"><option value="">Direct RCON command</option></select><input name="interval_seconds" type="number" min="60" max="31622400" placeholder="Repeat seconds (optional)"><button>Create job</button></form><div id="jobs"></div>
+    </article>
+
+    <article>
+      <p class="label">Redacted event feed</p><div id="audit" class="feed muted">Unlock to view.</div>
+    </article>
+  </main>
+  <footer><span>Private control plane · session and role enforced</span><span id="updated">Never updated</span></footer>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>

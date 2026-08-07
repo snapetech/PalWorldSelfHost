@@ -1,0 +1,9 @@
+apiVersion: v2
+name: palworld-selfhost
+description: Pocketpair official Palworld server with persistent saves and guarded configuration handoff
+type: application
+version: 0.1.0
+appVersion: "1.0.1.100619"
+home: https://github.com/snapetech/PalWorldSelfHost
+sources:
+  - https://github.com/pocketpairjp/palworld-dedicated-server-docker

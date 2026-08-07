@@ -4,8 +4,11 @@ import argparse, json, os, pathlib, shutil, socket, subprocess
 parser = argparse.ArgumentParser(); parser.add_argument("--json", action="store_true"); args = parser.parse_args()
 checks = []
 def add(name, ok, detail): checks.append({"name": name, "ok": bool(ok), "detail": str(detail)})
-for binary in ("systemctl", "steamcmd", "rclone", "zstd", "tar", "flock", "curl"):
+for binary in ("systemctl", "steamcmd", "rclone", "rsync", "zstd", "tar", "flock", "curl", "nft"):
     add(f"binary:{binary}", shutil.which(binary), shutil.which(binary) or "missing")
+if os.environ.get("PALWORLD_RUNTIME") == "wine-windows":
+    for binary in ("wine", "xvfb-run"):
+        add(f"binary:{binary}", shutil.which(binary), shutil.which(binary) or "missing")
 memory = int(pathlib.Path("/proc/meminfo").read_text().split("MemTotal:", 1)[1].split()[0]) * 1024
 add("memory", memory >= 8 * 1024**3, f"{memory / 1024**3:.1f} GiB (16+ recommended)")
 port = int(os.environ.get("PALWORLD_PORT", "8211")); sockets = subprocess.run(["ss", "-lun"], text=True, capture_output=True).stdout

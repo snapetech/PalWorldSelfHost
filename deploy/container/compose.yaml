@@ -1,0 +1,38 @@
+services:
+  palworld:
+    image: ghcr.io/pocketpairjp/palserver:v1.0.1.100619@sha256:0d293cafd503a91a6d11d71f7bf770ee0c3c5ecf37db988349b2c1758f4e9358
+    user: "0:0"
+    restart: unless-stopped
+    stop_grace_period: 120s
+    entrypoint: /palworldselfhost/entrypoint.sh
+    command:
+      - -port=8211
+      - -useperfthreads
+      - -NoAsyncLoadingThread
+      - -UseMultithreadForDS
+    ports:
+      - "8211:8211/udp"
+    configs:
+      - source: entrypoint
+        target: /palworldselfhost/entrypoint.sh
+        mode: 0555
+      - source: settings
+        target: /run/palworldselfhost/PalWorldSettings.ini
+        mode: 0400
+    volumes:
+      - palworld-saved:/pal/Package/Pal/Saved
+    healthcheck:
+      test: ["CMD-SHELL", "test -s /tmp/palworldselfhost.pid && kill -0 $(cat /tmp/palworldselfhost.pid)"]
+      start_period: 5m
+      interval: 20s
+      timeout: 5s
+      retries: 3
+
+configs:
+  entrypoint:
+    file: ./entrypoint.sh
+  settings:
+    file: ./PalWorldSettings.ini
+
+volumes:
+  palworld-saved:

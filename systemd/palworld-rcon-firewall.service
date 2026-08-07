@@ -1,0 +1,13 @@
+[Unit]
+Description=Fail-closed local-only boundary for Palworld REST and RCON
+Before=palworld.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/palworld-server.env
+ExecStart=/usr/local/lib/palworld/rcon-firewall.py apply
+ExecReload=/usr/local/lib/palworld/rcon-firewall.py apply
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

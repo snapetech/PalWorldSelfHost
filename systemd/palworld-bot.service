@@ -1,6 +1,7 @@
 [Unit]
-Description=Optional Palworld Matrix administration bot
+Description=Optional Palworld Matrix and Discord control bot
 After=network-online.target palworld.service
+Wants=network-online.target
 [Service]
 User=palworld
 Group=palworld
@@ -8,7 +9,8 @@ EnvironmentFile=/etc/palworld-server.env
 ExecStart=/usr/local/lib/palworld/admin-bot.py
 Restart=on-failure
 RestartSec=10
-NoNewPrivileges=true
 PrivateTmp=true
+ProtectHome=true
+UMask=0077
 [Install]
 WantedBy=multi-user.target

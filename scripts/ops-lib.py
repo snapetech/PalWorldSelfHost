@@ -24,6 +24,14 @@ def atomic_json(path: pathlib.Path, value: object) -> None:
     temporary.replace(path)
 
 
+def atomic_text(path: pathlib.Path, value: str, mode: int = 0o660) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    temporary.write_text(value)
+    os.chmod(temporary, mode)
+    temporary.replace(path)
+
+
 def read_json(path: pathlib.Path, default):
     try:
         return json.loads(path.read_text())

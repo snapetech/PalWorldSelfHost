@@ -6,12 +6,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: bash -n scripts/*.sh scripts/palworldctl
+      - run: bash -n scripts/*.sh scripts/palworldctl deploy/container/entrypoint.sh deploy/arm64/preflight.sh
       - run: python3 -m compileall -q scripts admin
+      - run: node --check admin/static/app.js bootstrap/static/bootstrap.js
       - run: python3 -m unittest discover -s tests -v
   shellcheck:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: sudo apt-get update && sudo apt-get install -y shellcheck
-      - run: shellcheck -x -e SC1091 scripts/*.sh scripts/palworldctl
+      - run: shellcheck -x -e SC1091 scripts/*.sh scripts/palworldctl deploy/container/entrypoint.sh deploy/arm64/preflight.sh
+  arm64-emulation:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare disposable ARM64 contract
+        run: |
+          cp deploy/arm64/palworld.env.example deploy/arm64/palworld.env
+          sed -i 's|<replace-with-server-name>|arm64-ci|; s|<replace-with-description>|disposable-ci|; s|<replace-with-long-random-admin-password>|ci-only-not-a-production-secret|; s|<replace-or-leave-empty>||; s|<replace-with-public-ip>|127.0.0.1|' deploy/arm64/palworld.env
+          chmod 600 deploy/arm64/palworld.env
+      - run: deploy/arm64/preflight.sh
+      - name: Prove Box64 executes x86-64 SteamCMD on the native ARM64 runner
+        run: |
+          docker run --rm --platform linux/arm64 --entrypoint /usr/local/bin/box64-generic \
+            docker.io/thijsvanloef/palworld-server-docker:v2.6.0@sha256:85ae20d8756dd398ec24f4253a59b80907e5ffe411148a67b2c80c4527a8855e \
+            /home/steam/steamcmd/linux64/steamcmd +quit

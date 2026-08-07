@@ -1,0 +1,2 @@
+[/Script/Pal.PalGameWorldSettings]
+OptionSettings=(ServerName="PalWorldSelfHost",ServerDescription="50% XP Rate, No Raids, 25 Pals per Base, No Drop on Death.",AdminPassword="CHANGE-ME",ServerPassword="",PublicPort=8211,RESTAPIEnabled=True,RESTAPIPort=8212,BaseCampWorkerMaxNum=25)

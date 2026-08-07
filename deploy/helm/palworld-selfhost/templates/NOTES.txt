@@ -1,0 +1,5 @@
+The Palworld game service is {{ include "palworld-selfhost.fullname" . }} on UDP port {{ .Values.server.port }}.
+
+The Pocketpair REST endpoint is deliberately pod-private. Back up the PVC before
+changing the pinned image digest. StatefulSet deletion preserves the PVC; deleting
+the PVC deletes the world.

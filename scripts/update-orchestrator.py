@@ -10,6 +10,15 @@ if check.returncode:
     ops.audit("update.check", "failed", error=check.stderr[-1000:]); raise SystemExit(check.returncode)
 status = json.loads(check.stdout); now = int(time.time()); prior = ops.read_json(status_file, {})
 status["checked_at"] = now
+build_state = subprocess.run([str(here / "steam-build-manager.py"), "list"], text=True, capture_output=True)
+if build_state.returncode == 0:
+    pin = json.loads(build_state.stdout).get("pin", {})
+    status["pin"] = pin
+    if pin.get("build_id") == status.get("local_build") and pin.get("build_id") != status.get("remote_build"):
+        status.update({"blocked_by_pin": True, "first_seen_at": prior.get("first_seen_at") or now})
+        ops.atomic_json(status_file, status)
+        ops.audit("update.pinned", "ok", build_id=pin.get("build_id"), remote_build=status.get("remote_build"))
+        raise SystemExit(0)
 if not status.get("update_available"):
     status["first_seen_at"] = None; ops.atomic_json(status_file, status); ops.audit("update.check", "current", **status); raise SystemExit(0)
 status["first_seen_at"] = prior.get("first_seen_at") or now

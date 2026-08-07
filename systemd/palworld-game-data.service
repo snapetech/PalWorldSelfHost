@@ -1,0 +1,13 @@
+[Unit]
+Description=Poll the optional Palworld Game Data API safely
+After=palworld.service
+
+[Service]
+Type=oneshot
+User=palworld
+Group=palworld
+EnvironmentFile=/etc/palworld-server.env
+ExecStart=/usr/local/lib/palworld/game-data-poller.py poll
+NoNewPrivileges=true
+PrivateTmp=true
+

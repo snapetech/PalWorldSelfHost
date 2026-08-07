@@ -1,6 +1,7 @@
 [Unit]
 Description=Palworld dedicated server
-After=network-online.target
+Requires=palworld-rcon-firewall.service
+After=network-online.target palworld-rcon-firewall.service
 Wants=network-online.target
 StartLimitIntervalSec=15min
 StartLimitBurst=5
@@ -12,6 +13,8 @@ Group=palworld
 Environment=HOME=/var/lib/palworld
 Environment=PALWORLD_ENV_FILE=/etc/palworld-server.env
 ExecStart=/usr/local/lib/palworld/start.sh
+ExecStartPost=/usr/local/lib/palworld/settings-loaded.py
+ExecStop=/usr/local/lib/palworld/service-stop.sh
 Restart=on-failure
 RestartSec=10s
 TimeoutStopSec=120s
