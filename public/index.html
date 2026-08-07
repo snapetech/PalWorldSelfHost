@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="description" content="Live status, player map, and connection guide for the Snape.tech Palworld community server." />
     <title>Snape.tech Palworld</title>
-    <link rel="stylesheet" href="/palworld/style.css" />
+    <link rel="stylesheet" href="/palworld/style.css?v=20260726-map-markers" />
   </head>
   <body>
     <header class="site-header">
@@ -33,6 +33,7 @@
             <dt>Explorers online</dt>
             <dd><strong id="players">—</strong><span id="capacity">/ 32</span></dd>
           </div>
+          <div class="peak-stat"><dt>Peak today</dt><dd id="peakToday">—</dd></div>
           <div><dt>World uptime</dt><dd id="uptime">—</dd></div>
           <div><dt>World day</dt><dd id="day">—</dd></div>
           <div class="maintenance-stat"><dt>Next maintenance</dt><dd id="maintenance">—</dd></div>
@@ -92,7 +93,11 @@
       </div>
     </main>
 
-    <footer><span>Live telemetry refreshes every 15 seconds.</span><span>Map adapted from ARXII-13’s Apache-2.0 Palworld Interactive Map.</span></footer>
-    <script src="/palworld/app.js"></script>
+    <footer>
+      <span>Live telemetry refreshes every 15 seconds.</span>
+      <span class="support-links" aria-label="Support PalWorldSelfHost"><b>Help keep the islands online</b><a href="https://www.paypal.com/donate/?business=donations%40snape.tech" target="_blank" rel="noopener noreferrer">PayPal</a><a href="https://ko-fi.com/snapetech" target="_blank" rel="noopener noreferrer">Ko-fi</a></span>
+      <span>Map adapted from ARXII-13’s Apache-2.0 Palworld Interactive Map.</span>
+    </footer>
+    <script src="/palworld/app.js?v=20260726-map-markers"></script>
   </body>
 </html>

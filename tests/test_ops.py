@@ -18,12 +18,15 @@ class OpsTests(unittest.TestCase):
     def test_public_player_map_hides_empty_state_and_keeps_refreshes_static(self):
         script=(ROOT/'public/app.js').read_text()
         styles=(ROOT/'public/style.css').read_text()
+        page=(ROOT/'public/index.html').read_text()
         self.assertIn('$("#empty").hidden = players.length > 0', script)
         self.assertIn('.empty[hidden] { display: none; }', styles)
         self.assertIn('class: "marker-label"', script)
         self.assertIn('.marker-label rect', styles)
         self.assertNotIn('.marker { animation:', styles)
         self.assertNotIn('@keyframes arrive', styles)
+        self.assertIn('/palworld/style.css?v=', page)
+        self.assertIn('/palworld/app.js?v=', page)
 
     def test_public_status_defaults_match_the_live_static_origin(self):
         expected = "/srv/static/palworld"
