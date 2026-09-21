@@ -1,5 +1,6 @@
 import os
 import pathlib
+import shlex
 import shutil
 import signal
 import subprocess
@@ -23,11 +24,24 @@ class PortabilityTests(unittest.TestCase):
         package.mkdir()
         marker = root / "graceful.marker"
         server = package / "PalServer.sh"
+        # A native process, like the real server. A shell script cannot trap SIGINT once a
+        # non-interactive shell started it as a background job (it is inherited as ignored,
+        # and dash enforces that), but a native process can install its own handler.
+        server_code = (
+            "import pathlib, signal, sys, time\n"
+            "marker, started = map(pathlib.Path, sys.argv[1:3])\n"
+            "def graceful(signum, frame):\n"
+            "    marker.write_text('graceful')\n"
+            "    sys.exit(0)\n"
+            "signal.signal(signal.SIGINT, graceful)\n"
+            "started.write_text('')\n"
+            "while True:\n"
+            "    time.sleep(0.1)\n"
+        )
         server.write_text(
             "#!/bin/sh\n"
-            f"trap 'printf graceful > {marker}; exit 0' INT\n"
-            f": > {root / 'server.started'}\n"
-            "while :; do sleep 0.1; done\n"
+            f"exec python3 -c {shlex.quote(server_code)} {shlex.quote(str(marker))} "
+            f"{shlex.quote(str(root / 'server.started'))}\n"
         )
         server.chmod(0o755)
         settings = root / "PalWorldSettings.ini"

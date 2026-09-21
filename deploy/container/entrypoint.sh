@@ -38,7 +38,8 @@ forward_shutdown() {
     trap - TERM INT
     cleanup
     if [ -n "$child" ]; then
-        rest_shutdown || kill -INT -- "-$child" 2>/dev/null || true
+        # dash rejects `kill -INT -- -PGID`; `-s INT --` is the POSIX form every sh accepts.
+        rest_shutdown || kill -s INT -- "-$child" 2>/dev/null || true
         wait "$child" || true
     fi
     exit 0
