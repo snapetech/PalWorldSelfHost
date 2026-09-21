@@ -26,6 +26,7 @@ class PortabilityTests(unittest.TestCase):
         server.write_text(
             "#!/bin/sh\n"
             f"trap 'printf graceful > {marker}; exit 0' INT\n"
+            f": > {root / 'server.started'}\n"
             "while :; do sleep 0.1; done\n"
         )
         server.chmod(0o755)
@@ -54,9 +55,12 @@ class PortabilityTests(unittest.TestCase):
             package, settings, marker, env = self.fixture(root)
             process = subprocess.Popen(["sh", str(ENTRYPOINT), "-port=8211"], env=env)
             deadline = time.monotonic() + 5
-            while not (root / "ready").exists() and time.monotonic() < deadline:
+            # "ready" only means the entrypoint spawned the server. Wait for the server to
+            # install its INT trap too, or SIGTERM can land before it can shut down gracefully.
+            while not ((root / "ready").exists() and (root / "server.started").exists()) and time.monotonic() < deadline:
                 time.sleep(0.02)
             self.assertTrue((root / "ready").exists())
+            self.assertTrue((root / "server.started").exists())
             process.send_signal(signal.SIGTERM)
             self.assertEqual(0, process.wait(timeout=5))
             self.assertEqual("graceful", marker.read_text())

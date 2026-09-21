@@ -29,6 +29,12 @@ jobs:
       - run: deploy/arm64/preflight.sh
       - name: Prove Box64 executes x86-64 SteamCMD on the native ARM64 runner
         run: |
-          docker run --rm --platform linux/arm64 --entrypoint /usr/local/bin/box64-generic \
+          # SteamCMD exits 42 after it self-updates and expects to be restarted. Its wrapper
+          # script loops on that; this step runs the binary directly, so it loops itself.
+          docker run --rm --platform linux/arm64 --entrypoint /bin/sh \
             docker.io/thijsvanloef/palworld-server-docker:v2.6.0@sha256:85ae20d8756dd398ec24f4253a59b80907e5ffe411148a67b2c80c4527a8855e \
-            /home/steam/steamcmd/linux64/steamcmd +quit
+            -c 'steamcmd=/home/steam/steamcmd/linux64/steamcmd
+                /usr/local/bin/box64-generic "$steamcmd" +quit && exit 0
+                status=$?
+                [ "$status" -eq 42 ] || exit "$status"
+                exec /usr/local/bin/box64-generic "$steamcmd" +quit'

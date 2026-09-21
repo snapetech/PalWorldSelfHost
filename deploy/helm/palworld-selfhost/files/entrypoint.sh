@@ -10,13 +10,13 @@ ready_file=${PALWORLD_READY_FILE:-/tmp/palworldselfhost.ready}
 pid_file=${PALWORLD_PID_FILE:-/tmp/palworldselfhost.pid}
 child=
 
-# shellcheck disable=SC2329  # invoked by EXIT trap
+# shellcheck disable=SC2317,SC2329  # invoked by EXIT trap
 cleanup() {
     rm -f "$ready_file" "$pid_file"
 }
 
 # Ask Palworld to save and shut itself down before falling back to a signal.
-# shellcheck disable=SC2329  # invoked by the TERM/INT trap handler
+# shellcheck disable=SC2317,SC2329  # invoked by the TERM/INT trap handler
 rest_shutdown() {
     [ "${PALWORLD_DISABLE_REST_SHUTDOWN:-false}" != true ] || return 1
     command -v curl >/dev/null 2>&1 || return 1
@@ -33,7 +33,7 @@ rest_shutdown() {
         -d '{"waittime":1,"message":"Container is stopping."}' "$rest_url/shutdown" >/dev/null
 }
 
-# shellcheck disable=SC2329  # invoked by TERM/INT traps
+# shellcheck disable=SC2317,SC2329  # invoked by TERM/INT traps
 forward_shutdown() {
     trap - TERM INT
     cleanup
@@ -79,7 +79,7 @@ select_world_id() {
     only=
     mkdir -p "$save_root"
     for level in "$save_root"/*/Level.sav; do
-        [ -f "$level" ] && [ ! -L "$level" ] || continue
+        if [ ! -f "$level" ] || [ -L "$level" ]; then continue; fi
         candidate=${level%/Level.sav}; candidate=${candidate##*/}
         printf '%s\n' "$candidate" | grep -Eq '^[0-9A-Fa-f]{32}$' || continue
         count=$((count + 1)); only=$candidate
@@ -101,9 +101,9 @@ select_world_id() {
         printf '%s\n' "$only"; return
     fi
     if [ "$count" -gt 1 ]; then
-        [ -n "$selected" ] && [ -f "$save_root/$selected/Level.sav" ] || {
-            echo "multiple persisted worlds exist and GameUserSettings.ini does not select one" >&2; return 65;
-        }
+        if [ -z "$selected" ] || [ ! -f "$save_root/$selected/Level.sav" ]; then
+            echo "multiple persisted worlds exist and GameUserSettings.ini does not select one" >&2; return 65
+        fi
         printf '%s\n' "$selected"; return
     fi
     if [ -n "$selected" ]; then
